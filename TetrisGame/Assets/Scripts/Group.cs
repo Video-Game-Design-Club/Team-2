@@ -57,10 +57,10 @@ public class Group : MonoBehaviour
             transform.Rotate(0, 0, -90);
 
             //Rotate the sprite of the blocks so they always face up
-            transform.GetChild(0).GetChild(0).Rotate(0, 0, 90);
-            transform.GetChild(1).GetChild(0).Rotate(0, 0, 90);
-            transform.GetChild(2).GetChild(0).Rotate(0, 0, 90);
-            transform.GetChild(3).GetChild(0).Rotate(0, 0, 90);
+            //transform.GetChild(0).GetChild(0).Rotate(0, 0, 90);
+            //transform.GetChild(1).GetChild(0).Rotate(0, 0, 90);
+            //transform.GetChild(2).GetChild(0).Rotate(0, 0, 90);
+            //transform.GetChild(3).GetChild(0).Rotate(0, 0, 90);
 
             // See if valid
             if (isValidGridPos())
