@@ -977,8 +977,8 @@ Transform:
   m_GameObject: {fileID: 1253383580}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.029, y: 0.04, z: 0}
-  m_LocalScale: {x: 0.2, y: 0.2, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.05391627, y: 0.05391627, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 287001285}
@@ -1024,9 +1024,9 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 6cb049ff555fb374e8336422bd335204, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b4ac171eb98284645aec977d5fe26b82, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
+  m_FlipX: 1
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 0.16, y: 0.16}
@@ -1245,20 +1245,16 @@ MonoBehaviour:
   - {fileID: 5227491104696764024, guid: 3a36cce657bda1e4ba1d002a4787122e, type: 3}
   - {fileID: 349123421351077472, guid: a55d6e0350b46a440ace96eb0bc5e880, type: 3}
   - {fileID: 2826267878068186452, guid: 25433f65867577d45a0c46aa967d249f, type: 3}
-  - {fileID: 9119954636746931210, guid: 15d376fd5f31b764b9d9ae1db0b9066f, type: 3}
-  - {fileID: 5129436158777742171, guid: 885b19ba415b4ac4094f85db1998f327, type: 3}
-  - {fileID: 5887451237078201230, guid: f88d4799cee5cee408261216ff910911, type: 3}
-  - {fileID: 2363708201870163900, guid: 2669a2f33ec7be4439c2c27c6cb6fe26, type: 3}
-  - {fileID: 5227491104696764024, guid: b01775460d53fb0428f49f4b1d93c5d1, type: 3}
-  - {fileID: 349123421351077472, guid: 6642f2ee84fc71943a976639901647cd, type: 3}
-  - {fileID: 2826267878068186452, guid: 54245d9f26971d1479f24285601de7e4, type: 3}
-  - {fileID: 9119954636746931210, guid: 7335cb5e00ed5914f82fb709c5bcaa38, type: 3}
-  - {fileID: 5129436158777742171, guid: dfcd63017ebf6644ead05a704cb2bdaf, type: 3}
-  - {fileID: 5887451237078201230, guid: 35e03ab8601f471439885085611b3112, type: 3}
-  - {fileID: 2363708201870163900, guid: 90ebce149056b1045b8cfd034b78327f, type: 3}
-  - {fileID: 5227491104696764024, guid: 53a9682eeb55910419733a70736cc94f, type: 3}
-  - {fileID: 349123421351077472, guid: 952917d98b5415a45a53cd2e2fe3b012, type: 3}
-  - {fileID: 2826267878068186452, guid: 0a36119b349722045ab46baccc7528aa, type: 3}
+  sprites:
+  - {fileID: 21300000, guid: 85af9e8ab8d3c5e4ab0edc662b03744f, type: 3}
+  - {fileID: 21300000, guid: fa2df135344ca0644bf987bc86e53827, type: 3}
+  - {fileID: 21300000, guid: 049a04398b2a761489cbbd43f22286f4, type: 3}
+  - {fileID: 21300000, guid: 1adfe869cd11c7a479fc1730c11bb545, type: 3}
+  - {fileID: 21300000, guid: b95334a551129874a9553afd7550a68b, type: 3}
+  - {fileID: 21300000, guid: 211d7c9087f281f44919cbea60748666, type: 3}
+  - {fileID: 21300000, guid: 0011570668dbf7748acd75ff292a57d1, type: 3}
+  - {fileID: 21300000, guid: 2d74f9a1535d3a74094ee77aec9d7409, type: 3}
+  - {fileID: 21300000, guid: ae321afa4367299498747718322bc914, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
