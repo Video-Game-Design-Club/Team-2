@@ -38,8 +38,14 @@ public class Group : MonoBehaviour
                 // It's valid. Update grid.
                 updateGrid();
             else
+            {
                 // It's not valid. revert.
                 transform.Rotate(0, 0, 90);
+                transform.GetChild(0).Rotate(0, 0, -90);
+                transform.GetChild(1).Rotate(0, 0, -90);
+                transform.GetChild(2).Rotate(0, 0, -90);
+                transform.GetChild(3).Rotate(0, 0, -90);
+            }
         }
 
         // Move Downwards and Fall
