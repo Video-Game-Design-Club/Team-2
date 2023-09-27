@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering.Universal.Internal;
 
 //nate was here
 
@@ -13,15 +16,55 @@ public class CharacterController2D : MonoBehaviour
     public float maxSpeed = 3.4f;
     public float jumpHeight = 12f;
     public float gravityScale = 1.5f;
+    public AnimationCurve accelerationCurve;
     public Camera mainCamera;
+    public LayerMask notPlayer;
 
     bool facingRight = true;
     float moveDirection = 0;
     bool isGrounded = false;
+    int jumpAmmount = 1;
     Vector3 cameraPos;
     Rigidbody2D r2d;
-    CapsuleCollider2D mainCollider;
+    public CapsuleCollider2D mainCollider;
     Transform t;
+
+    /*void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Ground")
+        {
+            isGrounded = true;
+            Debug.Log(isGrounded);
+        }
+        if (collision.gameObject.tag != "Ground")
+        {
+            isGrounded = false;
+            Debug.Log(isGrounded);
+        }
+    }
+
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Ground")
+        {
+            isGrounded = true;
+            Debug.Log(isGrounded);
+        }
+        if (collision.gameObject.tag != "Ground")
+        {
+            isGrounded = false;
+            Debug.Log(isGrounded);
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Ground")
+        {
+            isGrounded = false;
+            Debug.Log(isGrounded);
+        }
+    }*/
 
     // Use this for initialization
     void Start()
@@ -44,7 +87,8 @@ public class CharacterController2D : MonoBehaviour
     void Update()
     {
         // Movement controls
-        if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)) && (isGrounded || Mathf.Abs(r2d.velocity.x) > 0.01f))
+            //Nate: Got rid of the "isGrounded" parameter
+        if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)))
         {
             moveDirection = Input.GetKey(KeyCode.A) ? -1 : 1;
         }
@@ -72,8 +116,16 @@ public class CharacterController2D : MonoBehaviour
         }
 
         // Jumping
-        if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space)) && isGrounded)
+        if(isGrounded && jumpAmmount != 1)
         {
+            jumpAmmount = 1;
+        }
+        //Debug.Log(jumpAmmount);
+        //Debug.Log(isGrounded);
+
+        if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space)) && (jumpAmmount >= 1))
+        {
+            jumpAmmount--;
             r2d.velocity = new Vector2(r2d.velocity.x, jumpHeight);
         }
 
@@ -86,6 +138,7 @@ public class CharacterController2D : MonoBehaviour
 
     void FixedUpdate()
     {
+        /*
         Bounds colliderBounds = mainCollider.bounds;
         float colliderRadius = mainCollider.size.x * 0.4f * Mathf.Abs(transform.localScale.x);
         Vector3 groundCheckPos = colliderBounds.min + new Vector3(colliderBounds.size.x * 0.5f, colliderRadius * 0.9f, 0);
@@ -104,12 +157,53 @@ public class CharacterController2D : MonoBehaviour
                 }
             }
         }
+        */
+
+        Debug.DrawRay(transform.position, Vector2.right*1f, Color.red, Time.fixedDeltaTime);
+        
+
+        //new isGrounded system v1.013451
+        if (Physics2D.Raycast(transform.position, Vector2.down, .9f, notPlayer))
+        {
+            isGrounded = true;
+        }
+        else
+        {
+            isGrounded = false;
+        }
+
+        Debug.Log(isGrounded);
+
+
+        if (Physics2D.Raycast(transform.position, Vector2.left, .4f, notPlayer))
+        {
+            Debug.Log("Working");
+            if(moveDirection < 0)
+            {
+                moveDirection = 0;
+            }
+        }
+
+        if (Physics2D.Raycast(transform.position, Vector2.right, .4f, notPlayer))
+        {
+            Debug.Log("Working");
+            if (moveDirection > 0) 
+            {
+                moveDirection = 0;
+            }
+        }
+
+
+
+        //check if player is touching an object to the side
+
 
         // Apply movement velocity
         r2d.velocity = new Vector2((moveDirection) * maxSpeed, r2d.velocity.y);
+        //r2d.AddForce(new Vector2((moveDirection) * maxSpeed, r2d.velocity.y));
 
         // Simple debug
-        Debug.DrawLine(groundCheckPos, groundCheckPos - new Vector3(0, colliderRadius, 0), isGrounded ? Color.green : Color.red);
-        Debug.DrawLine(groundCheckPos, groundCheckPos - new Vector3(colliderRadius, 0, 0), isGrounded ? Color.green : Color.red);
+        //Debug.DrawLine(groundCheckPos, groundCheckPos - new Vector3(0, colliderRadius, 0), isGrounded ? Color.green : Color.red);
+        //Debug.DrawLine(groundCheckPos, groundCheckPos - new Vector3(colliderRadius, 0, 0), isGrounded ? Color.green : Color.red);
     }
 }
