@@ -7,6 +7,7 @@ public class Spawner : MonoBehaviour
     // Groups
     public GameObject[] groups;
     public Sprite[] sprites;
+    public GameObject player;
 
     // Start is called before the first frame update
     void Start()
@@ -33,8 +34,13 @@ public class Spawner : MonoBehaviour
         int m = Random.Range(0, sprites.Length);
 
         // Spawn Group at current Position
+        int x = Random.Range(2, 9);
+        int y = (int)(player.transform.position.y + 14);
+        Vector3 pos = transform.position;
+        pos.x = x;
+        pos.y = y;
         GameObject spawnedBlock = Instantiate(groups[i],
-                    transform.position,
+                    pos,
                     Quaternion.identity);
 
         //Here we set the sprites of the objects
