@@ -28,6 +28,7 @@ public class CharacterController2D : MonoBehaviour
     Rigidbody2D r2d;
     public CapsuleCollider2D mainCollider;
     Transform t;
+    float accelerationTimer = 0f;
 
     /*void OnCollisionEnter2D(Collision2D collision)
     {
@@ -134,6 +135,21 @@ public class CharacterController2D : MonoBehaviour
         {
             mainCamera.transform.position = new Vector3(t.position.x, t.position.y, cameraPos.z);
         }
+       
+        if (moveDirection != 0)
+        {
+            if (accelerationTimer <= 1)
+            {
+                accelerationTimer += 0.001f;
+            }
+        }
+        else
+        {
+            if (accelerationTimer > 0)
+            {
+                accelerationTimer -= 0.2f;
+            }
+        }
     }
 
     void FixedUpdate()
@@ -199,10 +215,12 @@ public class CharacterController2D : MonoBehaviour
 
 
         // Apply movement velocity
-        r2d.velocity = new Vector2((moveDirection) * maxSpeed, r2d.velocity.y);
+        r2d.velocity = new Vector2((moveDirection) * maxSpeed * accelerationCurve.Evaluate(accelerationTimer), r2d.velocity.y);
         //r2d.AddForce(new Vector2((moveDirection) * maxSpeed, r2d.velocity.y));
 
+
         // Simple debug
+        Debug.Log(accelerationTimer);
         //Debug.DrawLine(groundCheckPos, groundCheckPos - new Vector3(0, colliderRadius, 0), isGrounded ? Color.green : Color.red);
         //Debug.DrawLine(groundCheckPos, groundCheckPos - new Vector3(colliderRadius, 0, 0), isGrounded ? Color.green : Color.red);
     }
