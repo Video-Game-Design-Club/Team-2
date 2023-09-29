@@ -239,12 +239,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a9b466da6dfe9d4fba5ab44158b9522, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSpeed: 3.46
-  jumpHeight: 6.5
-  gravityScale: 1.5
+  maxSpeed: 4.89
+  jumpHeight: 7.33
+  gravityScale: 1.75
   accelerationCurve:
     serializedVersion: 2
     m_Curve:
+    - serializedVersion: 3
+      time: -1.0016727
+      value: -1.0013921
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
     - serializedVersion: 3
       time: 0
       value: 0
@@ -270,6 +279,9 @@ MonoBehaviour:
   notPlayer:
     serializedVersion: 2
     m_Bits: 55
+  accelerationStrength: 2
+  decelerationStrength: 2.99
+  turnbackStrength: 6.3
   mainCollider: {fileID: 287001283}
 --- !u!70 &287001283
 CapsuleCollider2D:
