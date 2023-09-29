@@ -20,6 +20,10 @@ public class CharacterController2D : MonoBehaviour
     public Camera mainCamera;
     public LayerMask notPlayer;
 
+    public float accelerationStrength = 1.0f;
+    public float decelerationStrength = 1.0f;
+    public float turnbackStrength = 1.0f;
+
     bool facingRight = true;
     float moveDirection = 0;
     bool isGrounded = false;
@@ -89,12 +93,54 @@ public class CharacterController2D : MonoBehaviour
     {
         // Movement controls
             //Nate: Got rid of the "isGrounded" parameter
+        if ((Input.GetKey(KeyCode.D)))
+        {
+            if (accelerationTimer <= 1)
+            {
+                if (accelerationTimer <= 0)
+                {
+                    accelerationTimer += turnbackStrength * Time.deltaTime;
+                }
+                else
+                accelerationTimer += accelerationStrength * Time.deltaTime;
+            }
+        }
+        
+        if((Input.GetKey(KeyCode.A)))
+        {
+            if (accelerationTimer >= -1)
+            {
+                if (accelerationTimer >= 0)
+                {
+                    accelerationTimer -= turnbackStrength * Time.deltaTime;
+                }
+                else
+                accelerationTimer -= accelerationStrength * Time.deltaTime;
+            }
+        }
+        
+        if (!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
+        {
+            if (accelerationTimer > 0f)
+            {
+                accelerationTimer -= decelerationStrength * Time.deltaTime;
+            }
+            else if (accelerationTimer < 0f)
+            {
+                accelerationTimer += decelerationStrength * Time.deltaTime;
+            }
+        }
+
+
+
+
         if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)))
         {
             moveDirection = Input.GetKey(KeyCode.A) ? -1 : 1;
         }
         else
         {
+            moveDirection = 0;
             if (isGrounded || r2d.velocity.magnitude < 0.01f)
             {
                 moveDirection = 0;
@@ -136,20 +182,22 @@ public class CharacterController2D : MonoBehaviour
             mainCamera.transform.position = new Vector3(t.position.x, t.position.y, cameraPos.z);
         }
        
-        if (moveDirection != 0)
+
+        //movement acceleration
+/*        if (moveDirection != 0)
         {
             if (accelerationTimer <= 1)
             {
-                accelerationTimer += 0.001f;
+                accelerationTimer += 1f * Time.deltaTime;
             }
         }
         else
         {
             if (accelerationTimer > 0)
             {
-                accelerationTimer -= 0.2f;
+                accelerationTimer -= 2f * Time.deltaTime;
             }
-        }
+        }*/
     }
 
     void FixedUpdate()
@@ -196,7 +244,7 @@ public class CharacterController2D : MonoBehaviour
             Debug.Log("Working");
             if(moveDirection < 0)
             {
-                moveDirection = 0;
+                accelerationTimer = 0;
             }
         }
 
@@ -205,7 +253,7 @@ public class CharacterController2D : MonoBehaviour
             Debug.Log("Working");
             if (moveDirection > 0) 
             {
-                moveDirection = 0;
+                accelerationTimer = 0;
             }
         }
 
@@ -215,7 +263,7 @@ public class CharacterController2D : MonoBehaviour
 
 
         // Apply movement velocity
-        r2d.velocity = new Vector2((moveDirection) * maxSpeed * accelerationCurve.Evaluate(accelerationTimer), r2d.velocity.y);
+        r2d.velocity = new Vector2(maxSpeed * accelerationCurve.Evaluate(accelerationTimer), r2d.velocity.y);
         //r2d.AddForce(new Vector2((moveDirection) * maxSpeed, r2d.velocity.y));
 
 
