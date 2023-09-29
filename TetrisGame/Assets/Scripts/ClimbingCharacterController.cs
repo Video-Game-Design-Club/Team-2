@@ -236,12 +236,12 @@ public class CharacterController2D : MonoBehaviour
             isGrounded = false;
         }
 
-        Debug.Log(isGrounded);
+        // Debug.Log(isGrounded);
 
 
         if (Physics2D.Raycast(transform.position, Vector2.left, .4f, notPlayer))
         {
-            Debug.Log("Working");
+            // Debug.Log("Working");
             if(moveDirection < 0)
             {
                 accelerationTimer = 0;
@@ -250,7 +250,7 @@ public class CharacterController2D : MonoBehaviour
 
         if (Physics2D.Raycast(transform.position, Vector2.right, .4f, notPlayer))
         {
-            Debug.Log("Working");
+            // Debug.Log("Working");
             if (moveDirection > 0) 
             {
                 accelerationTimer = 0;
