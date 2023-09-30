@@ -8,6 +8,8 @@ public class Spawner : MonoBehaviour
     public GameObject[] groups;
     public Sprite[] sprites;
     public GameObject player;
+    float fallTime = 1;
+    int lastTime = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -19,11 +21,19 @@ public class Spawner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void spawnNext()
     {
+        int timeCheck = (int)Time.time; //Throw time into an int so we can drop the numbers after the decimal.
+        if ((timeCheck > 1 && ((timeCheck % 10) == 0)) || ((timeCheck - lastTime) > 100) ) //Check to see if 10 seconds passed, if so then make blocks fall faster. 
+        {
+            timeCheck++;
+            fallTime -= .1f;
+            lastTime += 100;
+        }
+
         // Random Index
         int i = Random.Range(0, groups.Length);
         
@@ -34,7 +44,46 @@ public class Spawner : MonoBehaviour
         int m = Random.Range(0, sprites.Length);
 
         // Spawn Group at current Position
-        int x = Random.Range(2, 9);
+        int playfieldEdge = Playfield.w - 1;
+        int x = Random.Range(1, playfieldEdge); //Range of 1 to Playfield.w - 1, 1 is the left of our playfield and 19 is the right of the playfield.
+        switch (i)
+        {
+            case 0:             //I block
+                //This block doesn't need to be moved over, leave it where it is.
+                break;
+            case 1:             //J block
+                if (x == 1)
+                    x++; //This block's center will spawn it out of bounds only on the left wall, so move it right one block.
+                break;
+            case 2:             //L block
+                if (x == playfieldEdge)
+                    x--; //This block's center will spawn it out of bounds only on the right wall, so move it left one block.
+                break;
+            case 3:             //O block
+                if (x == playfieldEdge)
+                    x--; //This block's center will spawn it out of bounds only on the right wall, so move it left one block.
+                break;
+            case 4:             //S  block
+                if (x == 1)
+                    x++; //This block's center will spawn it out of bounds on the left wall, so move it right one block.
+                else if (x == playfieldEdge)
+                    x--; //This block's center will spawn it out of bounds on the right wall, so move it left one block.
+                break;
+            case 5:             //T block
+                if(x == 1)
+                    x++; //This block's center will spawn it out of bounds on the left wall, so move it right one block.
+                else if(x == playfieldEdge)
+                    x--; //This block's center will spawn it out of bounds on the right wall, so move it left one block.
+                break;
+            case 6:             //Z block
+                if (x == 1)
+                    x++; //This block's center will spawn it out of bounds on the left wall, so move it right one block.
+                else if (x == playfieldEdge)
+                    x--; //This block's center will spawn it out of bounds on the right wall, so move it left one block.
+                break;
+            default:
+                break;
+        }
         int y = (int)(player.transform.position.y + 14);
         Vector3 pos = transform.position;
         pos.x = x;
@@ -42,6 +91,7 @@ public class Spawner : MonoBehaviour
         GameObject spawnedBlock = Instantiate(groups[i],
                     pos,
                     Quaternion.identity);
+        spawnedBlock.GetComponent<Group>().blockFallTime = fallTime;
 
         //Here we set the sprites of the objects
         spawnedBlock.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = sprites[j];
