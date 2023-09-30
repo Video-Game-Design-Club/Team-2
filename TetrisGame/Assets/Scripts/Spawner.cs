@@ -9,6 +9,7 @@ public class Spawner : MonoBehaviour
     public GameObject player;
     float fallTime = 1;
     int lastTime = 0;
+    int blockType = 0;
 
     private GameObject _nextBlock;
 
@@ -27,6 +28,13 @@ public class Spawner : MonoBehaviour
 
     public void spawnNext()
     {
+        int timeCheck = (int)Time.time; //Throw time into an int so we can drop the numbers after the decimal.
+        if ((timeCheck > 1 && ((timeCheck % 10) == 0)) || ((timeCheck - lastTime) > 100) ) //Check to see if 10 seconds passed, if so then make blocks fall faster. 
+        {
+            timeCheck++;
+            fallTime -= .1f;
+            lastTime += 100;
+        }
 
         if (_nextBlock == null)
         {
@@ -34,47 +42,9 @@ public class Spawner : MonoBehaviour
         }
 
         // Spawn Group at current Position
-        int x = Random.Range(2, 9);
-        int y = (int)(player.transform.position.y + 14);
-        Vector3 pos = transform.position;
-        pos.x = x;
-        pos.y = y;
-        _nextBlock.transform.SetPositionAndRotation(pos, transform.rotation);
-        _nextBlock.GetComponent<Group>().mode = Group.GroupMode.Active;
-
-        GenerateNext();
-
-    }
-
-    public void GenerateNext()
-    {
-        /*int timeCheck = (int)Time.time; //Throw time into an int so we can drop the numbers after the decimal.
-        if ((timeCheck > 1 && ((timeCheck % 10) == 0)) || ((timeCheck - lastTime) > 100) ) //Check to see if 10 seconds passed, if so then make blocks fall faster. 
-        {
-            timeCheck++;
-            fallTime -= .1f;
-            lastTime += 100;
-        }*/
-
-        // Random Index
-        int i = Random.Range(0, groups.Length);
-
-        //Get random sprite index
-        int j = Random.Range(0, sprites.Length);
-        int k = Random.Range(0, sprites.Length);
-        int l = Random.Range(0, sprites.Length);
-        int m = Random.Range(0, sprites.Length);
-
-        // we set the next block outside the playfield but still visible
-        // TODO: put this on the ui layer ?
-        _nextBlock = Instantiate(groups[i],
-                    new Vector3(-2, player.transform.position.y + NEXT_BLOCK_Y_OFFSET, 1),
-                     Quaternion.identity);
-       
-        // Spawn Group at current Position
-        /* int playfieldEdge = Playfield.w - 1;
+        int playfieldEdge = Playfield.w - 1;
         int x = Random.Range(1, playfieldEdge); //Range of 1 to Playfield.w - 1, 1 is the left of our playfield and 19 is the right of the playfield.
-        switch (i)
+        switch (blockType)
         {
             case 0:             //I block
                 //This block doesn't need to be moved over, leave it where it is.
@@ -98,9 +68,9 @@ public class Spawner : MonoBehaviour
                     x--; //This block's center will spawn it out of bounds on the right wall, so move it left one block.
                 break;
             case 5:             //T block
-                if(x == 1)
+                if (x == 1)
                     x++; //This block's center will spawn it out of bounds on the left wall, so move it right one block.
-                else if(x == playfieldEdge)
+                else if (x == playfieldEdge)
                     x--; //This block's center will spawn it out of bounds on the right wall, so move it left one block.
                 break;
             case 6:             //Z block
@@ -116,11 +86,31 @@ public class Spawner : MonoBehaviour
         Vector3 pos = transform.position;
         pos.x = x;
         pos.y = y;
-        GameObject spawnedBlock = Instantiate(groups[i],
-                    pos,
-        */
-                    //Quaternion.identity);
-        //spawnedBlock.GetComponent<Group>().blockFallTime = fallTime;
+        _nextBlock.transform.SetPositionAndRotation(pos, transform.rotation);
+        _nextBlock.GetComponent<Group>().mode = Group.GroupMode.Active;
+        _nextBlock.GetComponent<Group>().blockFallTime = fallTime; //Needed since we want the block fall time to vary. 
+
+        GenerateNext();
+
+    }
+
+    public void GenerateNext()
+    {
+        // Random Index
+        int i = Random.Range(0, groups.Length);
+        blockType = i;
+
+        // we set the next block outside the playfield but still visible
+        // TODO: put this on the ui layer ?
+        _nextBlock = Instantiate(groups[i],
+                    new Vector3(-2, player.transform.position.y + NEXT_BLOCK_Y_OFFSET, 1),
+                     Quaternion.identity);
+
+        //Get random sprite index
+        int j = Random.Range(0, sprites.Length);
+        int k = Random.Range(0, sprites.Length);
+        int l = Random.Range(0, sprites.Length);
+        int m = Random.Range(0, sprites.Length);
 
         //Here we set the sprites of the objects
         _nextBlock.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = sprites[j];
