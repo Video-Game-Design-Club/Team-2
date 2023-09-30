@@ -14,6 +14,7 @@ public class Group : MonoBehaviour
     // Time since last gravity tick
     float lastFall = 0;
     public GroupMode mode = GroupMode.Queued;
+    public float blockFallTime;
 
     // Start is called before the first frame update
     void Start()
@@ -34,9 +35,20 @@ public class Group : MonoBehaviour
         {
             return;
         }
+        /*if(Input.GetMouseButtonDown(0))
+        {
+            Debug.Log("Fire");
+            if(Time.timeScale <= 99)
+            Time.timeScale += 1f;
+        }
+        if (Input.GetMouseButtonDown(1))
+        {
+            Debug.Log("Alt-Fire");
+            Time.timeScale = 1;
+        }*/
 
         // Rotate
-        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Q))
         {
             transform.Rotate(0, 0, -90);
 
@@ -62,8 +74,8 @@ public class Group : MonoBehaviour
         }
 
         // Move Downwards and Fall
-        else if (Input.GetKeyDown(KeyCode.DownArrow) ||
-         Time.time - lastFall >= 1)
+        else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow) ||
+         Time.time - lastFall >= blockFallTime)
         {
             // Modify position
             transform.position += new Vector3(0, -1, 0);
