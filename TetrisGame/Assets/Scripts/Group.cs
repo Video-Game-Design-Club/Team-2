@@ -4,8 +4,16 @@ using UnityEngine;
 
 public class Group : MonoBehaviour
 {
+    public enum GroupMode
+    {
+        // active means it is falling and in play.
+        Active,
+        // queued means that it is not currently in play, but will be soon.
+        Queued
+    }
     // Time since last gravity tick
     float lastFall = 0;
+    public GroupMode mode = GroupMode.Queued;
     public float blockFallTime;
 
     // Start is called before the first frame update
@@ -22,6 +30,11 @@ public class Group : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // this group member should not fall or respond to key press yet
+        if (mode != GroupMode.Active)
+        {
+            return;
+        }
         /*if(Input.GetMouseButtonDown(0))
         {
             Debug.Log("Fire");
