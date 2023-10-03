@@ -24,6 +24,10 @@ public class CharacterController2D : MonoBehaviour
     public float decelerationStrength = 1.0f;
     public float turnbackStrength = 1.0f;
 
+    public float upClamberStrength = 1.0f;
+    public float sideClamberStrength = 1.0f;
+    public float clamberDelay = 1.0f;
+
     bool facingRight = true;
     float moveDirection = 0;
     bool isGrounded = false;
@@ -33,43 +37,30 @@ public class CharacterController2D : MonoBehaviour
     public CapsuleCollider2D mainCollider;
     Transform t;
     float accelerationTimer = 0f;
+    bool clamberLock = false;
 
-    /*void OnCollisionEnter2D(Collision2D collision)
+    IEnumerator clamberRight()
     {
-        if (collision.gameObject.tag == "Ground")
-        {
-            isGrounded = true;
-            Debug.Log(isGrounded);
-        }
-        if (collision.gameObject.tag != "Ground")
-        {
-            isGrounded = false;
-            Debug.Log(isGrounded);
-        }
+        r2d.velocity = new Vector2 (0, 0);
+        r2d.AddForce(new Vector2(0f, upClamberStrength), ForceMode2D.Impulse);
+        yield return new WaitForSeconds(clamberDelay);
+        r2d.AddForce(new Vector2(sideClamberStrength, 0f), ForceMode2D.Impulse);
+        yield return new WaitForSeconds(0.3f);
+        clamberLock = false;
+        Debug.Log("working right");
+        
     }
 
-    void OnCollisionStay2D(Collision2D collision)
+    IEnumerator clamberLeft()
     {
-        if (collision.gameObject.tag == "Ground")
-        {
-            isGrounded = true;
-            Debug.Log(isGrounded);
-        }
-        if (collision.gameObject.tag != "Ground")
-        {
-            isGrounded = false;
-            Debug.Log(isGrounded);
-        }
+        r2d.velocity = new Vector2(0, 0);
+        r2d.AddForce(new Vector2(0f, upClamberStrength), ForceMode2D.Impulse);
+        yield return new WaitForSeconds(clamberDelay);
+        r2d.AddForce(new Vector2(-sideClamberStrength, 0f), ForceMode2D.Impulse);
+        yield return new WaitForSeconds(0.3f);
+        clamberLock = false;
+        Debug.Log("working left");
     }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if (collision.gameObject.tag == "Ground")
-        {
-            isGrounded = false;
-            Debug.Log(isGrounded);
-        }
-    }*/
 
     // Use this for initialization
     void Start()
@@ -92,7 +83,6 @@ public class CharacterController2D : MonoBehaviour
     void Update()
     {
         // Movement controls
-            //Nate: Got rid of the "isGrounded" parameter
         if ((Input.GetKey(KeyCode.D)))
         {
             if (accelerationTimer <= 1)
@@ -131,9 +121,7 @@ public class CharacterController2D : MonoBehaviour
             }
         }
 
-
-
-
+        //set moveDirection
         if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)))
         {
             moveDirection = Input.GetKey(KeyCode.A) ? -1 : 1;
@@ -147,7 +135,7 @@ public class CharacterController2D : MonoBehaviour
             }
         }
 
-        // Change facing direction
+        // Change sprite facing direction
         if (moveDirection != 0)
         {
             if (moveDirection > 0 && !facingRight)
@@ -167,8 +155,6 @@ public class CharacterController2D : MonoBehaviour
         {
             jumpAmmount = 1;
         }
-        //Debug.Log(jumpAmmount);
-        //Debug.Log(isGrounded);
 
         if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space)) && (jumpAmmount >= 1))
         {
@@ -181,53 +167,13 @@ public class CharacterController2D : MonoBehaviour
         {
             mainCamera.transform.position = new Vector3(t.position.x, t.position.y, cameraPos.z);
         }
-       
-
-        //movement acceleration
-/*        if (moveDirection != 0)
-        {
-            if (accelerationTimer <= 1)
-            {
-                accelerationTimer += 1f * Time.deltaTime;
-            }
-        }
-        else
-        {
-            if (accelerationTimer > 0)
-            {
-                accelerationTimer -= 2f * Time.deltaTime;
-            }
-        }*/
     }
 
     void FixedUpdate()
     {
-        /*
-        Bounds colliderBounds = mainCollider.bounds;
-        float colliderRadius = mainCollider.size.x * 0.4f * Mathf.Abs(transform.localScale.x);
-        Vector3 groundCheckPos = colliderBounds.min + new Vector3(colliderBounds.size.x * 0.5f, colliderRadius * 0.9f, 0);
-        // Check if player is grounded
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(groundCheckPos, colliderRadius);
-        //Check if any of the overlapping colliders are not player collider, if so, set isGrounded to true
-        isGrounded = false;
-        if (colliders.Length > 0)
-        {
-            for (int i = 0; i < colliders.Length; i++)
-            {
-                if (colliders[i] != mainCollider)
-                {
-                    isGrounded = true;
-                    break;
-                }
-            }
-        }
-        */
-
-        Debug.DrawRay(transform.position, Vector2.right*1f, Color.red, Time.fixedDeltaTime);
-        
-
         //new isGrounded system v1.013451
-        if (Physics2D.Raycast(transform.position, Vector2.down, .9f, notPlayer))
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position - Vector3.up * 0.4f, 0.37f, notPlayer);
+        if (colliders.Length > 0)
         {
             isGrounded = true;
         }
@@ -236,39 +182,48 @@ public class CharacterController2D : MonoBehaviour
             isGrounded = false;
         }
 
-        // Debug.Log(isGrounded);
-
-
-        if (Physics2D.Raycast(transform.position, Vector2.left, .4f, notPlayer))
-        {
-            // Debug.Log("Working");
-            if(moveDirection < 0)
+        //wall collision detection
+        if (Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.left, .4f, notPlayer) || //head
+            Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.left, .4f, notPlayer) ||  //feet
+            Physics2D.Raycast(transform.position, Vector2.left, .4f, notPlayer))                        //center
             {
-                accelerationTimer = 0;
+                if (moveDirection < 0)
+                {
+                    accelerationTimer = 0;
+                }
             }
+
+        if (Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.right, .4f, notPlayer) || //head
+            Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.right, .4f, notPlayer) ||  //feet
+            Physics2D.Raycast(transform.position, Vector2.right, .4f, notPlayer))                        //center
+            {
+                if (moveDirection > 0)
+                {
+                    accelerationTimer = 0;
+                }
+            }
+
+        //clamber tech
+        if (Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.left, .4f, notPlayer) && !Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.left, .4f, notPlayer) && moveDirection == -1)
+        {
+            clamberLock = true;
+            StartCoroutine(clamberLeft());
         }
 
-        if (Physics2D.Raycast(transform.position, Vector2.right, .4f, notPlayer))
+        if (Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.right, .4f, notPlayer) && !Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.right, .4f, notPlayer) && moveDirection == 1)
         {
-            // Debug.Log("Working");
-            if (moveDirection > 0) 
-            {
-                accelerationTimer = 0;
-            }
+            clamberLock = true;
+            StartCoroutine(clamberRight());
         }
-
-
-
-        //check if player is touching an object to the side
 
 
         // Apply movement velocity
-        r2d.velocity = new Vector2(maxSpeed * accelerationCurve.Evaluate(accelerationTimer), r2d.velocity.y);
-        //r2d.AddForce(new Vector2((moveDirection) * maxSpeed, r2d.velocity.y));
-
+        if (!clamberLock)
+        {
+            r2d.velocity = new Vector2(maxSpeed * accelerationCurve.Evaluate(accelerationTimer), r2d.velocity.y);
+        }
 
         // Simple debug
-        Debug.Log(accelerationTimer);
         //Debug.DrawLine(groundCheckPos, groundCheckPos - new Vector3(0, colliderRadius, 0), isGrounded ? Color.green : Color.red);
         //Debug.DrawLine(groundCheckPos, groundCheckPos - new Vector3(colliderRadius, 0, 0), isGrounded ? Color.green : Color.red);
     }
