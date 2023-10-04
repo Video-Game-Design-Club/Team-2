@@ -11,7 +11,7 @@ public class Spawner : MonoBehaviour
     int lastTime = 0;
     int blockType = 0;
 
-    private GameObject _nextBlock;
+    public GameObject _nextBlock;
 
     // Start is called before the first frame update
     void Start()
