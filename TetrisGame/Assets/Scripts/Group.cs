@@ -9,7 +9,9 @@ public class Group : MonoBehaviour
         // active means it is falling and in play.
         Active,
         // queued means that it is not currently in play, but will be soon.
-        Queued
+        Queued,
+        // set means that it is part of the playfield
+        Set
     }
     // Time since last gravity tick
     float lastFall = 0;
@@ -95,6 +97,7 @@ public class Group : MonoBehaviour
                 Playfield.deleteFullRows();
 
                 // Spawn next Group
+                gameObject.GetComponent<Group>().mode = GroupMode.Set;
                 FindObjectOfType<Spawner>().spawnNext();
 
                 // Disable script
@@ -139,4 +142,33 @@ public class Group : MonoBehaviour
             Playfield.grid[(int)v.x, (int)v.y] = child;
         }
     }
+
+    public void moveLeft()
+    {
+        // Move Leftposition
+        transform.position += new Vector3(-1, 0, 0);
+
+        // See if it's valid
+        if (isValidGridPos())
+            // It's valid. Update grid.
+            updateGrid();
+        else
+            // Its not valid. revert.
+            transform.position += new Vector3(1, 0, 0);
+    }
+
+    public void moveRight()
+    {
+        // Move Right
+        transform.position += new Vector3(1, 0, 0);
+
+        // See if valid
+        if (isValidGridPos())
+            // It's valid. Update grid.
+            updateGrid();
+        else
+            // It's not valid. revert.
+            transform.position += new Vector3(-1, 0, 0);
+    }
+
 }

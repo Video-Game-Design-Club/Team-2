@@ -39,6 +39,20 @@ public class CharacterController2D : MonoBehaviour
     float accelerationTimer = 0f;
     bool clamberLock = false;
 
+    //Block kick variables
+    Group[] allBlocks;
+    Group activeBlock;
+    bool wallLeftDetect = false;
+    bool wallRightDetect = false;
+    float kickCooldown = 5f;
+    RaycastHit2D raycastResultFeetLeft = new RaycastHit2D();
+    RaycastHit2D raycastResultHeadLeft = new RaycastHit2D();
+    RaycastHit2D raycastResultCenterLeft = new RaycastHit2D();
+    RaycastHit2D raycastResultFeetRight = new RaycastHit2D();
+    RaycastHit2D raycastResultHeadRight = new RaycastHit2D();
+    RaycastHit2D raycastResultCenterRight = new RaycastHit2D();
+
+
     IEnumerator clamberRight()
     {
         r2d.velocity = new Vector2 (0, 0);
@@ -47,7 +61,7 @@ public class CharacterController2D : MonoBehaviour
         r2d.AddForce(new Vector2(sideClamberStrength, 0f), ForceMode2D.Impulse);
         yield return new WaitForSeconds(0.3f);
         clamberLock = false;
-        Debug.Log("working right");
+        //Debug.Log("working right");
         
     }
 
@@ -59,7 +73,7 @@ public class CharacterController2D : MonoBehaviour
         r2d.AddForce(new Vector2(-sideClamberStrength, 0f), ForceMode2D.Impulse);
         yield return new WaitForSeconds(0.3f);
         clamberLock = false;
-        Debug.Log("working left");
+        //Debug.Log("working left");
     }
 
     // Use this for initialization
@@ -82,8 +96,69 @@ public class CharacterController2D : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Movement controls
-        if ((Input.GetKey(KeyCode.D)))
+        //Kick cooldown, slowly decrementing from 5
+        kickCooldown -= Time.deltaTime;
+
+        //Check if active block ref is stale, if so, null it out. Otherwise check for the most recent active block.
+        if ((activeBlock != null) && (activeBlock.mode != Group.GroupMode.Active))
+            activeBlock = null;
+        else if(activeBlock == null)
+        {
+            allBlocks = FindObjectsOfType<Group>();
+            for (int i = 0; i < allBlocks.Length; i++)
+                if (allBlocks[i].mode == Group.GroupMode.Active)
+                    activeBlock = allBlocks[i];
+        }
+
+        //Check if we press F, if we do then check for wall detection, if that works, check out cooldown.
+        if ((Input.GetKeyDown(KeyCode.F)) && wallLeftDetect && !facingRight && kickCooldown <= 0f)
+        {
+            //Check if active block is null, if not then check if our certain raycast result is null, if not then check the parent of that collision against the active block.
+            //If all of that is good to go then we move the block either left or right and add a 5f second delay and remove our reference to active block.
+            //These comments apply for all of the code below this.
+            if(activeBlock != null && raycastResultFeetLeft.collider != null && raycastResultFeetLeft.transform.parent == activeBlock.transform)
+            {
+                activeBlock.moveLeft();
+                kickCooldown = 5f;
+                activeBlock = null;
+            }
+            else if (activeBlock != null && raycastResultCenterLeft.collider != null && raycastResultCenterLeft.transform.parent == activeBlock.transform)
+            {
+                activeBlock.moveLeft();
+                kickCooldown = 5f;
+                activeBlock = null;
+            }
+            else if (activeBlock != null && raycastResultHeadLeft.collider != null && raycastResultHeadLeft.transform.parent == activeBlock.transform)
+            {
+                activeBlock.moveLeft();
+                kickCooldown = 5f;
+                activeBlock = null;
+            }
+        }
+        else if ((Input.GetKey(KeyCode.F)) && wallRightDetect && facingRight && kickCooldown <= 0f)
+        {
+            if (activeBlock != null && raycastResultFeetRight.collider != null && raycastResultFeetRight.transform.parent == activeBlock.transform)
+            {
+                activeBlock.moveRight();
+                kickCooldown = 5f;
+                activeBlock = null;
+            }
+            else if (activeBlock != null && raycastResultCenterRight.collider != null && raycastResultCenterRight.transform.parent == activeBlock.transform)
+            {
+                activeBlock.moveRight();
+                kickCooldown = 5f;
+                activeBlock = null;
+            }
+            else if (activeBlock != null && raycastResultHeadRight.collider != null && raycastResultHeadRight.transform.parent == activeBlock.transform)
+            {
+                activeBlock.moveRight();
+                kickCooldown = 5f;
+                activeBlock = null;
+            }
+        }
+
+            // Movement controls
+            if ((Input.GetKey(KeyCode.D)))
         {
             if (accelerationTimer <= 1)
             {
@@ -165,7 +240,7 @@ public class CharacterController2D : MonoBehaviour
         // Camera follow
         if (mainCamera)
         {
-            mainCamera.transform.position = new Vector3(t.position.x, t.position.y, cameraPos.z);
+            mainCamera.transform.position = new Vector3(cameraPos.x, t.position.y, cameraPos.z);
         }
     }
 
@@ -183,25 +258,38 @@ public class CharacterController2D : MonoBehaviour
         }
 
         //wall collision detection
-        if (Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.left, .4f, notPlayer) || //head
-            Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.left, .4f, notPlayer) ||  //feet
-            Physics2D.Raycast(transform.position, Vector2.left, .4f, notPlayer))                        //center
+        //AS: Get the results of each raycast and store it for later use. Same below for the right side.
+        if ((raycastResultHeadLeft = Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.left, .4f, notPlayer)) || //head
+            (raycastResultFeetLeft = Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.left, .4f, notPlayer)) ||  //feet
+            (raycastResultCenterLeft = Physics2D.Raycast(transform.position, Vector2.left, .4f, notPlayer)))                        //center
             {
+                //If we hit a wall/block on the left, set the wall left detect var to true. Same below for right wall detect.
+                wallLeftDetect = true;
                 if (moveDirection < 0)
                 {
                     accelerationTimer = 0;
                 }
             }
+        else
+        {
+            //If we don't hit anything then set wall detect to false, same for right wall detect.
+            wallLeftDetect = false;
+        }
 
-        if (Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.right, .4f, notPlayer) || //head
-            Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.right, .4f, notPlayer) ||  //feet
-            Physics2D.Raycast(transform.position, Vector2.right, .4f, notPlayer))                        //center
+        if ((raycastResultHeadRight = Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.right, .4f, notPlayer)) || //head
+            (raycastResultFeetRight = Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.right, .4f, notPlayer)) ||  //feet
+            (raycastResultCenterRight = Physics2D.Raycast(transform.position, Vector2.right, .4f, notPlayer)))                        //center
             {
+                wallRightDetect = true;
                 if (moveDirection > 0)
                 {
                     accelerationTimer = 0;
                 }
             }
+        else
+        {
+            wallRightDetect = false;
+        }
 
         //clamber tech
         if (Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.left, .4f, notPlayer) && !Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.left, .4f, notPlayer) && moveDirection == -1)
