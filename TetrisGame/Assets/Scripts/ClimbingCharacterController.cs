@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.PlasticSCM.Editor.WebApi;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering.Universal.Internal;
@@ -13,6 +14,7 @@ using UnityEngine.Rendering.Universal.Internal;
 public class CharacterController2D : MonoBehaviour
 {
     // Move player in 2D space
+    public State currentState = State.Walk;
     public float maxSpeed = 3.4f;
     public float jumpHeight = 12f;
     public float gravityScale = 1.5f;
@@ -38,6 +40,19 @@ public class CharacterController2D : MonoBehaviour
     Transform t;
     float accelerationTimer = 0f;
     bool clamberLock = false;
+
+    public enum State
+    {
+        Walk,
+        Jump,
+        Fall,
+        Clamber
+    }
+
+    void DoWalk()
+    {
+        
+    }
 
     IEnumerator clamberRight()
     {
@@ -167,6 +182,26 @@ public class CharacterController2D : MonoBehaviour
         {
             mainCamera.transform.position = new Vector3(t.position.x, t.position.y, cameraPos.z);
         }
+
+        //state mahcine :3
+        switch (currentState)
+        {
+            case State.Walk:
+                Debug.Log("Test 0");
+                break;
+
+            case State.Jump:
+                Debug.Log("Test 1");
+                break;
+
+            case State.Fall:
+                Debug.Log("Test Jump");
+                break;
+
+            case State.Clamber:
+                Debug.Log("Test Clamber");
+                break;
+        }
     }
 
     void FixedUpdate()
@@ -206,19 +241,28 @@ public class CharacterController2D : MonoBehaviour
         //clamber tech
         if (Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.left, .4f, notPlayer) && !Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.left, .4f, notPlayer) && moveDirection == -1)
         {
-            clamberLock = true;
-            StartCoroutine(clamberLeft());
+            currentState = State.Clambering;
         }
 
         if (Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.right, .4f, notPlayer) && !Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.right, .4f, notPlayer) && moveDirection == 1)
         {
-            clamberLock = true;
-            StartCoroutine(clamberRight());
+            currentState = State.Clambering;
         }
+            /*if (Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.left, .4f, notPlayer) && !Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.left, .4f, notPlayer) && moveDirection == -1)
+            {
+                clamberLock = true;
+                StartCoroutine(clamberLeft());
+            }
+
+            if (Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.right, .4f, notPlayer) && !Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.right, .4f, notPlayer) && moveDirection == 1)
+            {
+                clamberLock = true;
+                StartCoroutine(clamberRight());
+            }*/
 
 
-        // Apply movement velocity
-        if (!clamberLock)
+            // Apply movement velocity
+            if (!clamberLock)
         {
             r2d.velocity = new Vector2(maxSpeed * accelerationCurve.Evaluate(accelerationTimer), r2d.velocity.y);
         }
