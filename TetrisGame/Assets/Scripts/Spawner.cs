@@ -13,9 +13,14 @@ public class Spawner : MonoBehaviour
 
     private GameObject _nextBlock;
 
+    GameObject nextBlockPanel;
+
     // Start is called before the first frame update
     void Start()
     {
+        //Find the object in the scene that has the name NBP.
+        nextBlockPanel = GameObject.Find("NBP");
+
         // Spawn initial Group
         spawnNext();
     }
@@ -23,7 +28,11 @@ public class Spawner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (_nextBlock.GetComponent<Group>().mode == Group.GroupMode.Queued)
+        {
+            //Set the block's position to the UI panel's position.
+            _nextBlock.transform.position = nextBlockPanel.transform.position;
+        }
     }
 
     public void spawnNext()
@@ -40,6 +49,8 @@ public class Spawner : MonoBehaviour
         {
             GenerateNext();
         }
+        _nextBlock.layer = LayerMask.NameToLayer("Default");
+        _nextBlock.transform.SetParent(null);
 
         // Spawn Group at current Position
         int playfieldEdge = Playfield.w - 1;
@@ -91,7 +102,6 @@ public class Spawner : MonoBehaviour
         _nextBlock.GetComponent<Group>().blockFallTime = fallTime; //Needed since we want the block fall time to vary. 
 
         GenerateNext();
-
     }
 
     public void GenerateNext()
@@ -100,11 +110,15 @@ public class Spawner : MonoBehaviour
         int i = Random.Range(0, groups.Length);
         blockType = i;
 
-        // we set the next block outside the playfield but still visible
-        // TODO: put this on the ui layer ?
+        // we set the next block into the ui panel
         _nextBlock = Instantiate(groups[i],
-                    new Vector3(-2, player.transform.position.y + NEXT_BLOCK_Y_OFFSET, 1),
+                    nextBlockPanel.transform.position,
                      Quaternion.identity);
+
+        //If the block is Queued then we want to move it to the UI layer.
+        if (_nextBlock.GetComponent<Group>().mode == Group.GroupMode.Queued)
+            _nextBlock.layer = LayerMask.NameToLayer("UI");
+            _nextBlock.transform.SetParent(nextBlockPanel.transform);
 
         //Get random sprite index
         int j = Random.Range(0, sprites.Length);

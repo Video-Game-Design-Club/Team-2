@@ -40,11 +40,16 @@ public class CharacterController2D : MonoBehaviour
     int jumpAmmount = 1;
     Vector3 cameraPos;
     Rigidbody2D r2d;
-    
+
     Transform t;
     float accelerationTimer = 0f;
     bool clamberLock = false;
     bool jumpInput = false;
+
+    //Block kick variables
+    Group[] allBlocks;
+    Group activeBlock;
+    float kickCooldown = 5f;
 
     public enum State
     {
@@ -116,23 +121,39 @@ public class CharacterController2D : MonoBehaviour
     }
 
     void DoJump()
-    {   
-            jumpAmmount--;
-            r2d.velocity = new Vector2(r2d.velocity.x, jumpHeight);
+    {
+        jumpAmmount--;
+        r2d.velocity = new Vector2(r2d.velocity.x, jumpHeight);
     }
 
     void DoClamber()
-    {   
+    {
         clamberLock = true;
-        
+
         if (feetLeftRay())
         {
-            
+
             StartCoroutine(clamber(-1));
         }
         else
         {
             StartCoroutine(clamber(1));
+        }
+    }
+
+    void DoBlockKick(bool direction)
+    {
+        if (direction && activeBlock && kickCooldown <= 0f && midRightRayResult().collider != null && midRightRayResult().transform.parent == activeBlock.transform)
+        {
+            activeBlock.moveRight();
+            kickCooldown = 5f;
+            activeBlock = null;
+        }
+        else if(activeBlock && kickCooldown <= 0f && midLeftRayResult().collider != null && midLeftRayResult().transform.parent == activeBlock.transform)
+        {
+            activeBlock.moveLeft();
+            kickCooldown = 5f;
+            activeBlock = null;
         }
     }
 
@@ -143,6 +164,11 @@ public class CharacterController2D : MonoBehaviour
     }
 
     bool midLeftRay()
+    {
+        return Physics2D.Raycast(transform.position, Vector2.left, .4f, notPlayer);
+    }
+    
+    RaycastHit2D midLeftRayResult()
     {
         return Physics2D.Raycast(transform.position, Vector2.left, .4f, notPlayer);
     }
@@ -164,6 +190,11 @@ public class CharacterController2D : MonoBehaviour
         return Physics2D.Raycast(transform.position, Vector2.right, .4f, notPlayer);
     }
 
+    RaycastHit2D midRightRayResult()
+    {
+        return Physics2D.Raycast(transform.position, Vector2.right, .4f, notPlayer);
+    }
+
     bool feetRightRay()
     {
         return Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.right, .4f, notPlayer);
@@ -172,15 +203,13 @@ public class CharacterController2D : MonoBehaviour
 
     IEnumerator clamber(int direction)
     {
-        r2d.velocity = new Vector2 (0, 0);
+        r2d.velocity = new Vector2(0, 0);
         r2d.AddForce(new Vector2(0f, upClamberStrength), ForceMode2D.Impulse);
         yield return new WaitForSeconds(clamberDelay);
         r2d.AddForce(new Vector2(sideClamberStrength * direction, 0f), ForceMode2D.Impulse);
         yield return new WaitForSeconds(0.3f);
         currentState = State.Fall;
         clamberLock = false;
-        Debug.Log("working right");
-        
     }
 
     // Use this for initialization
@@ -203,6 +232,21 @@ public class CharacterController2D : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        //Kick cooldown, slowly decrementing from 5
+        kickCooldown -= Time.deltaTime;
+
+        //Check if active block ref is stale, if so, null it out. Otherwise check for the most recent active block.
+        if ((activeBlock != null) && (activeBlock.mode != Group.GroupMode.Active))
+            activeBlock = null;
+        else if (activeBlock == null)
+        {
+            allBlocks = FindObjectsOfType<Group>();
+            for (int i = 0; i < allBlocks.Length; i++)
+                if (allBlocks[i].mode == Group.GroupMode.Active)
+                    activeBlock = allBlocks[i];
+        }
+
         //set moveDirection
         if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)))
         {
@@ -240,7 +284,7 @@ public class CharacterController2D : MonoBehaviour
         // Camera follow
         if (mainCamera)
         {
-            mainCamera.transform.position = new Vector3(t.position.x, t.position.y, cameraPos.z);
+            mainCamera.transform.position = new Vector3(cameraPos.x, t.position.y, cameraPos.z);
         }
     }
 
@@ -267,7 +311,6 @@ public class CharacterController2D : MonoBehaviour
         switch (currentState)
         {
             case State.Walk:
-                Debug.Log("Test Walk");
 
                 DoWalk();
 
@@ -292,7 +335,6 @@ public class CharacterController2D : MonoBehaviour
                 break;
 
             case State.Jump:
-                Debug.Log("Test Jump");
 
                 DoJump();
 
@@ -301,8 +343,7 @@ public class CharacterController2D : MonoBehaviour
                 break;
 
             case State.Fall:
-                Debug.Log("Test Fall");
-                
+
                 DoWalk();
 
                 if (jumpInput && (jumpAmmount >= 1))
@@ -312,8 +353,8 @@ public class CharacterController2D : MonoBehaviour
 
                 if (isGrounded)
                 {
-                    currentState = State.Walk; 
-                    jumpAmmount = 2; 
+                    currentState = State.Walk;
+                    jumpAmmount = 2;
                     break;
                 }
 
@@ -326,10 +367,18 @@ public class CharacterController2D : MonoBehaviour
                     currentState = State.Clamber; break;
                 }
 
-                break;
+                if(Input.GetKey(KeyCode.F) && facingRight)
+                {
+                    DoBlockKick(facingRight);
+                }
+                else if(Input.GetKey(KeyCode.F) && !facingRight)
+                {
+                    DoBlockKick(facingRight);
+                }
+
+                    break;
 
             case State.Clamber:
-                Debug.Log("Test Clamber");
 
                 if (clamberLock == false)
                 {
