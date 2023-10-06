@@ -284,9 +284,9 @@ MonoBehaviour:
   accelerationStrength: 2
   decelerationStrength: 2.99
   turnbackStrength: 6.3
-  upClamberStrength: 7.6
-  sideClamberStrength: 2.4
-  clamberDelay: 0.3
+  upClamberStrength: 7.68
+  sideClamberStrength: 2.38
+  clamberDelay: 0.21
 --- !u!70 &287001283
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
