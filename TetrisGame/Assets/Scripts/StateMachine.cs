@@ -8,7 +8,7 @@ using UnityEngine;
 
 public class StateMachine : MonoBehaviour
 {
-    public State currentState;
+    /*public State currentState;
     Rigidbody2D r2d;
 
     // Start is called before the first frame update
@@ -39,7 +39,7 @@ public class StateMachine : MonoBehaviour
                 Debug.Log("Test 1");
                 break;
         }
-    }
+    }*/
 }
 
 public enum State

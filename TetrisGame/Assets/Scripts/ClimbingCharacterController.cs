@@ -14,6 +14,7 @@ using UnityEngine.Rendering.Universal.Internal;
 public class CharacterController2D : MonoBehaviour
 {
     // Move player in 2D space
+    [Header("The other shit")]
     public State currentState = State.Walk;
     public float maxSpeed = 3.4f;
     public float jumpHeight = 12f;
@@ -21,11 +22,14 @@ public class CharacterController2D : MonoBehaviour
     public AnimationCurve accelerationCurve;
     public Camera mainCamera;
     public LayerMask notPlayer;
+    public CapsuleCollider2D mainCollider;
 
+    [Header("Acceleration Settings")]
     public float accelerationStrength = 1.0f;
     public float decelerationStrength = 1.0f;
     public float turnbackStrength = 1.0f;
 
+    [Header("Clamber Settings")]
     public float upClamberStrength = 1.0f;
     public float sideClamberStrength = 1.0f;
     public float clamberDelay = 1.0f;
@@ -36,10 +40,11 @@ public class CharacterController2D : MonoBehaviour
     int jumpAmmount = 1;
     Vector3 cameraPos;
     Rigidbody2D r2d;
-    public CapsuleCollider2D mainCollider;
+    
     Transform t;
     float accelerationTimer = 0f;
     bool clamberLock = false;
+    bool jumpInput = false;
 
     public enum State
     {
@@ -51,30 +56,131 @@ public class CharacterController2D : MonoBehaviour
 
     void DoWalk()
     {
-        
+        if ((Input.GetKey(KeyCode.D)))
+        {
+            if (accelerationTimer <= 1)
+            {
+                if (accelerationTimer <= 0)
+                {
+                    accelerationTimer += turnbackStrength * Time.deltaTime;
+                }
+                else
+                    accelerationTimer += accelerationStrength * Time.deltaTime;
+            }
+        }
+
+        if ((Input.GetKey(KeyCode.A)))
+        {
+            if (accelerationTimer >= -1)
+            {
+                if (accelerationTimer >= 0)
+                {
+                    accelerationTimer -= turnbackStrength * Time.deltaTime;
+                }
+                else
+                    accelerationTimer -= accelerationStrength * Time.deltaTime;
+            }
+        }
+
+        if (!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
+        {
+            if (accelerationTimer > 0f)
+            {
+                float accDelta = decelerationStrength * Time.deltaTime;
+                accelerationTimer -= MathF.Min(accDelta, MathF.Abs(accelerationTimer));
+            }
+            else if (accelerationTimer < 0f)
+            {
+                float accDelta = decelerationStrength * Time.deltaTime;
+                accelerationTimer += MathF.Min(accDelta, MathF.Abs(accelerationTimer));
+            }
+        }
+
+        if (headLeftRay() || midLeftRay() || feetLeftRay())
+        {
+            if (moveDirection < 0)
+            {
+                accelerationTimer = 0;
+            }
+        }
+
+        if (headRightRay() || midRightRay() || feetRightRay())
+        {
+            if (moveDirection > 0)
+            {
+                accelerationTimer = 0;
+            }
+        }
+
+        r2d.velocity = new Vector2(maxSpeed * accelerationCurve.Evaluate(accelerationTimer), r2d.velocity.y);
     }
 
-    IEnumerator clamberRight()
+    void DoJump()
+    {   
+            jumpAmmount--;
+            r2d.velocity = new Vector2(r2d.velocity.x, jumpHeight);
+    }
+
+    void DoClamber()
+    {   
+        clamberLock = true;
+        
+        if (feetLeftRay())
+        {
+            
+            StartCoroutine(clamber(-1));
+        }
+        else
+        {
+            StartCoroutine(clamber(1));
+        }
+    }
+
+    #region LeftRays
+    bool headLeftRay()
+    {
+        return Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.left, .4f, notPlayer);
+    }
+
+    bool midLeftRay()
+    {
+        return Physics2D.Raycast(transform.position, Vector2.left, .4f, notPlayer);
+    }
+
+    bool feetLeftRay()
+    {
+        return Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.left, .4f, notPlayer);
+    }
+    #endregion
+
+    #region RightRays
+    bool headRightRay()
+    {
+        return Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.right, .4f, notPlayer);
+    }
+
+    bool midRightRay()
+    {
+        return Physics2D.Raycast(transform.position, Vector2.right, .4f, notPlayer);
+    }
+
+    bool feetRightRay()
+    {
+        return Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.right, .4f, notPlayer);
+    }
+    #endregion
+
+    IEnumerator clamber(int direction)
     {
         r2d.velocity = new Vector2 (0, 0);
         r2d.AddForce(new Vector2(0f, upClamberStrength), ForceMode2D.Impulse);
         yield return new WaitForSeconds(clamberDelay);
-        r2d.AddForce(new Vector2(sideClamberStrength, 0f), ForceMode2D.Impulse);
+        r2d.AddForce(new Vector2(sideClamberStrength * direction, 0f), ForceMode2D.Impulse);
         yield return new WaitForSeconds(0.3f);
+        currentState = State.Fall;
         clamberLock = false;
         Debug.Log("working right");
         
-    }
-
-    IEnumerator clamberLeft()
-    {
-        r2d.velocity = new Vector2(0, 0);
-        r2d.AddForce(new Vector2(0f, upClamberStrength), ForceMode2D.Impulse);
-        yield return new WaitForSeconds(clamberDelay);
-        r2d.AddForce(new Vector2(-sideClamberStrength, 0f), ForceMode2D.Impulse);
-        yield return new WaitForSeconds(0.3f);
-        clamberLock = false;
-        Debug.Log("working left");
     }
 
     // Use this for initialization
@@ -97,45 +203,6 @@ public class CharacterController2D : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Movement controls
-        if ((Input.GetKey(KeyCode.D)))
-        {
-            if (accelerationTimer <= 1)
-            {
-                if (accelerationTimer <= 0)
-                {
-                    accelerationTimer += turnbackStrength * Time.deltaTime;
-                }
-                else
-                accelerationTimer += accelerationStrength * Time.deltaTime;
-            }
-        }
-        
-        if((Input.GetKey(KeyCode.A)))
-        {
-            if (accelerationTimer >= -1)
-            {
-                if (accelerationTimer >= 0)
-                {
-                    accelerationTimer -= turnbackStrength * Time.deltaTime;
-                }
-                else
-                accelerationTimer -= accelerationStrength * Time.deltaTime;
-            }
-        }
-        
-        if (!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
-        {
-            if (accelerationTimer > 0f)
-            {
-                accelerationTimer -= decelerationStrength * Time.deltaTime;
-            }
-            else if (accelerationTimer < 0f)
-            {
-                accelerationTimer += decelerationStrength * Time.deltaTime;
-            }
-        }
-
         //set moveDirection
         if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)))
         {
@@ -165,16 +232,9 @@ public class CharacterController2D : MonoBehaviour
             }
         }
 
-        // Jumping
-        if(isGrounded && jumpAmmount != 1)
-        {
-            jumpAmmount = 1;
-        }
-
         if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space)) && (jumpAmmount >= 1))
         {
-            jumpAmmount--;
-            r2d.velocity = new Vector2(r2d.velocity.x, jumpHeight);
+            jumpInput = true;
         }
 
         // Camera follow
@@ -182,32 +242,13 @@ public class CharacterController2D : MonoBehaviour
         {
             mainCamera.transform.position = new Vector3(t.position.x, t.position.y, cameraPos.z);
         }
-
-        //state mahcine :3
-        switch (currentState)
-        {
-            case State.Walk:
-                Debug.Log("Test 0");
-                break;
-
-            case State.Jump:
-                Debug.Log("Test 1");
-                break;
-
-            case State.Fall:
-                Debug.Log("Test Jump");
-                break;
-
-            case State.Clamber:
-                Debug.Log("Test Clamber");
-                break;
-        }
     }
 
     void FixedUpdate()
     {
         //new isGrounded system v1.013451
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position - Vector3.up * 0.4f, 0.37f, notPlayer);
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position - Vector3.up * 0.4f, 0.35f, notPlayer);
+
         if (colliders.Length > 0)
         {
             isGrounded = true;
@@ -217,55 +258,88 @@ public class CharacterController2D : MonoBehaviour
             isGrounded = false;
         }
 
-        //wall collision detection
-        if (Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.left, .4f, notPlayer) || //head
-            Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.left, .4f, notPlayer) ||  //feet
-            Physics2D.Raycast(transform.position, Vector2.left, .4f, notPlayer))                        //center
-            {
-                if (moveDirection < 0)
+        if (isGrounded && jumpAmmount != 1)
+        {
+            jumpAmmount = 2;
+        }
+
+        //state mahcine :3
+        switch (currentState)
+        {
+            case State.Walk:
+                Debug.Log("Test Walk");
+
+                DoWalk();
+
+                if (jumpInput && (jumpAmmount >= 1))
                 {
-                    accelerationTimer = 0;
+                    currentState = State.Jump; break;
                 }
-            }
 
-        if (Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.right, .4f, notPlayer) || //head
-            Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.right, .4f, notPlayer) ||  //feet
-            Physics2D.Raycast(transform.position, Vector2.right, .4f, notPlayer))                        //center
-            {
-                if (moveDirection > 0)
+                if (!isGrounded)
                 {
-                    accelerationTimer = 0;
+                    currentState = State.Fall; break;
                 }
-            }
 
-        //clamber tech
-        if (Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.left, .4f, notPlayer) && !Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.left, .4f, notPlayer) && moveDirection == -1)
-        {
-            currentState = State.Clambering;
+                if (feetLeftRay() && !headLeftRay() && moveDirection == -1)
+                {
+                    currentState = State.Clamber; break;
+                }
+                if (feetRightRay() && !headRightRay() && moveDirection == 1)
+                {
+                    currentState = State.Clamber; break;
+                }
+                break;
+
+            case State.Jump:
+                Debug.Log("Test Jump");
+
+                DoJump();
+
+                currentState = State.Fall;
+
+                break;
+
+            case State.Fall:
+                Debug.Log("Test Fall");
+                
+                DoWalk();
+
+                if (jumpInput && (jumpAmmount >= 1))
+                {
+                    currentState = State.Jump; break;
+                }
+
+                if (isGrounded)
+                {
+                    currentState = State.Walk; 
+                    jumpAmmount = 2; 
+                    break;
+                }
+
+                if (feetLeftRay() && !headLeftRay() && moveDirection == -1)
+                {
+                    currentState = State.Clamber; break;
+                }
+                if (feetRightRay() && !headRightRay() && moveDirection == 1)
+                {
+                    currentState = State.Clamber; break;
+                }
+
+                break;
+
+            case State.Clamber:
+                Debug.Log("Test Clamber");
+
+                if (clamberLock == false)
+                {
+                    DoClamber();
+                }
+
+                break;
         }
 
-        if (Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.right, .4f, notPlayer) && !Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.right, .4f, notPlayer) && moveDirection == 1)
-        {
-            currentState = State.Clambering;
-        }
-            /*if (Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.left, .4f, notPlayer) && !Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.left, .4f, notPlayer) && moveDirection == -1)
-            {
-                clamberLock = true;
-                StartCoroutine(clamberLeft());
-            }
-
-            if (Physics2D.Raycast(transform.position - Vector3.up * 0.6f, Vector2.right, .4f, notPlayer) && !Physics2D.Raycast(transform.position + Vector3.up * 0.75f, Vector2.right, .4f, notPlayer) && moveDirection == 1)
-            {
-                clamberLock = true;
-                StartCoroutine(clamberRight());
-            }*/
-
-
-            // Apply movement velocity
-            if (!clamberLock)
-        {
-            r2d.velocity = new Vector2(maxSpeed * accelerationCurve.Evaluate(accelerationTimer), r2d.velocity.y);
-        }
+        jumpInput = false;
 
         // Simple debug
         //Debug.DrawLine(groundCheckPos, groundCheckPos - new Vector3(0, colliderRadius, 0), isGrounded ? Color.green : Color.red);
