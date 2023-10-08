@@ -50,6 +50,7 @@ public class CharacterController2D : MonoBehaviour
     Group[] allBlocks;
     Group activeBlock;
     float kickCooldown = 5f;
+    float punchCooldown = 5f;
 
     public enum State
     {
@@ -157,6 +158,21 @@ public class CharacterController2D : MonoBehaviour
         }
     }
 
+    void DoBlockPunch()
+    {
+        if (activeBlock && punchCooldown <= 0f && HeadUpRayResult().collider != null && HeadUpRayResult().transform.parent == activeBlock.transform)
+        {
+            activeBlock.Rotate();
+            punchCooldown = 5f;
+            activeBlock = null;
+        }
+    }
+
+    RaycastHit2D HeadUpRayResult()
+    {
+        return Physics2D.Raycast(transform.position, Vector2.up, .9f, notPlayer);
+    }
+
     #region LeftRays
     bool headLeftRay()
     {
@@ -233,8 +249,9 @@ public class CharacterController2D : MonoBehaviour
     void Update()
     {
 
-        //Kick cooldown, slowly decrementing from 5
+        //Kick and punch cooldown, slowly decrementing from 5
         kickCooldown -= Time.deltaTime;
+        punchCooldown -= Time.deltaTime;
 
         //Check if active block ref is stale, if so, null it out. Otherwise check for the most recent active block.
         if ((activeBlock != null) && (activeBlock.mode != Group.GroupMode.Active))
@@ -376,7 +393,12 @@ public class CharacterController2D : MonoBehaviour
                     DoBlockKick(facingRight);
                 }
 
-                    break;
+                if (Input.GetKey(KeyCode.E))
+                {
+                    DoBlockPunch();
+                }
+
+                break;
 
             case State.Clamber:
 

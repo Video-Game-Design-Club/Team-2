@@ -49,32 +49,6 @@ public class Group : MonoBehaviour
             Time.timeScale = 1;
         }*/
 
-        // Rotate
-        if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Q))
-        {
-            transform.Rotate(0, 0, -90);
-
-            //Rotate the sprite of the blocks so they always face up
-            transform.GetChild(0).Rotate(0, 0, 90);
-            transform.GetChild(1).Rotate(0, 0, 90);
-            transform.GetChild(2).Rotate(0, 0, 90);
-            transform.GetChild(3).Rotate(0, 0, 90);
-
-            // See if valid
-            if (isValidGridPos())
-                // It's valid. Update grid.
-                updateGrid();
-            else
-            {
-                // It's not valid. revert.
-                transform.Rotate(0, 0, 90);
-                transform.GetChild(0).Rotate(0, 0, -90);
-                transform.GetChild(1).Rotate(0, 0, -90);
-                transform.GetChild(2).Rotate(0, 0, -90);
-                transform.GetChild(3).Rotate(0, 0, -90);
-            }
-        }
-
         // Move Downwards and Fall
         else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow) ||
          Time.time - lastFall >= blockFallTime)
@@ -99,6 +73,7 @@ public class Group : MonoBehaviour
                 // Spawn next Group
                 gameObject.GetComponent<Group>().mode = GroupMode.Set;
                 FindObjectOfType<Spawner>().spawnNext();
+                FindObjectOfType<Score>().score += 4;
 
                 // Disable script
                 enabled = false;
@@ -170,5 +145,31 @@ public class Group : MonoBehaviour
             // It's not valid. revert.
             transform.position += new Vector3(-1, 0, 0);
     }
+
+    // Rotate code moved to function we can call from character script.
+    public void Rotate()
+    {
+        transform.Rotate(0, 0, -90);
+
+        //Rotate the sprite of the blocks so they always face up
+        transform.GetChild(0).Rotate(0, 0, 90);
+        transform.GetChild(1).Rotate(0, 0, 90);
+        transform.GetChild(2).Rotate(0, 0, 90);
+        transform.GetChild(3).Rotate(0, 0, 90);
+
+        // See if valid
+        if (isValidGridPos())
+            // It's valid. Update grid.
+            updateGrid();
+        else
+        {
+            // It's not valid. revert.
+            transform.Rotate(0, 0, 90);
+            transform.GetChild(0).Rotate(0, 0, -90);
+            transform.GetChild(1).Rotate(0, 0, -90);
+            transform.GetChild(2).Rotate(0, 0, -90);
+            transform.GetChild(3).Rotate(0, 0, -90);
+        }
+    }    
 
 }
