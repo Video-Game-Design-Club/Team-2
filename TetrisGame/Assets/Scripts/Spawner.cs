@@ -13,13 +13,13 @@ public class Spawner : MonoBehaviour
 
     private GameObject _nextBlock;
 
-    GameObject nextBlockPanel;
+    Transform nextBlockPanel;
 
     // Start is called before the first frame update
     void Start()
     {
         //Find the object in the scene that has the name NBP.
-        nextBlockPanel = GameObject.Find("NBP");
+        nextBlockPanel = GameObject.Find("NBP").transform.GetChild(1);
 
         // Spawn initial Group
         spawnNext();

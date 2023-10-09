@@ -49,8 +49,10 @@ public class CharacterController2D : MonoBehaviour
     //Block kick variables
     Group[] allBlocks;
     Group activeBlock;
-    float kickCooldown = 5f;
-    float punchCooldown = 5f;
+    [Header("Skill Cooldown Settings")]
+    public float kickCooldown = 0f;
+    public float punchCooldown = 0f;
+    public float freezeTimeCooldown = 0f;
 
     public enum State
     {

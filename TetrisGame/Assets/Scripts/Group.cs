@@ -50,7 +50,7 @@ public class Group : MonoBehaviour
         }*/
 
         // Move Downwards and Fall
-        else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow) ||
+        if (Time.timeScale != 0 && Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow) ||
          Time.time - lastFall >= blockFallTime)
         {
             // Modify position
