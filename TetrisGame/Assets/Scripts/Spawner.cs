@@ -7,19 +7,19 @@ public class Spawner : MonoBehaviour
     public GameObject[] groups;
     public Sprite[] sprites;
     public GameObject player;
-    float fallTime = 1;
+    float fallTime = 0.7f;
     int lastTime = 0;
     int blockType = 0;
 
     private GameObject _nextBlock;
 
-    GameObject nextBlockPanel;
+    Transform nextBlockPanel;
 
     // Start is called before the first frame update
     void Start()
     {
         //Find the object in the scene that has the name NBP.
-        nextBlockPanel = GameObject.Find("NBP");
+        nextBlockPanel = GameObject.Find("NBP").transform.GetChild(1);
 
         // Spawn initial Group
         spawnNext();
@@ -38,11 +38,11 @@ public class Spawner : MonoBehaviour
     public void spawnNext()
     {
         int timeCheck = (int)Time.time; //Throw time into an int so we can drop the numbers after the decimal.
-        if ((timeCheck > 1 && ((timeCheck % 10) == 0)) || ((timeCheck - lastTime) > 100) ) //Check to see if 10 seconds passed, if so then make blocks fall faster. 
+        if ((timeCheck > 1 && ((timeCheck % 60) == 0)) || ((timeCheck - lastTime) > 60) ) //Check to see if 60 seconds passed, if so then make blocks fall faster. 
         {
             timeCheck++;
             fallTime -= .1f;
-            lastTime += 100;
+            lastTime += 60;
         }
 
         if (_nextBlock == null)
