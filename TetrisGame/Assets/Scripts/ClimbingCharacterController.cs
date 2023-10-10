@@ -28,11 +28,20 @@ public class CharacterController2D : MonoBehaviour
     public float accelerationStrength = 1.0f;
     public float decelerationStrength = 1.0f;
     public float turnbackStrength = 1.0f;
+    public float airStrafeStrength = 1.0f;
+    public float airStrafeDecelerationStrength = 1.0f;
 
     [Header("Clamber Settings")]
     public float upClamberStrength = 1.0f;
     public float sideClamberStrength = 1.0f;
     public float clamberDelay = 1.0f;
+
+    [Header("Wall Grab Settings")]
+    public float wallholdGravityScalar = 0.33f;
+    int wallholdDirection = 0;
+    public float walljumpStrength = 1.0f;
+    public float walljumpDelay = 1.0f;
+    bool walljumpLock = false;
 
     bool facingRight = true;
     float moveDirection = 0;
@@ -56,12 +65,14 @@ public class CharacterController2D : MonoBehaviour
         Walk,
         Jump,
         Fall,
-        Clamber
+        Clamber,
+        Wallhold,
+        Walljump
     }
 
     void DoWalk()
     {
-        if ((Input.GetKey(KeyCode.D)))
+        /*if ((Input.GetKey(KeyCode.D)))
         {
             if (accelerationTimer <= 1)
             {
@@ -117,7 +128,32 @@ public class CharacterController2D : MonoBehaviour
             }
         }
 
-        r2d.velocity = new Vector2(maxSpeed * accelerationCurve.Evaluate(accelerationTimer), r2d.velocity.y);
+        r2d.velocity = new Vector2(maxSpeed * accelerationCurve.Evaluate(accelerationTimer), r2d.velocity.y);*/
+        if(Math.Abs(r2d.velocity.x) < maxSpeed && moveDirection != 0)
+        {
+            r2d.AddForce(new Vector2(accelerationStrength * moveDirection, 0f));
+        }
+        else if(Math.Abs(r2d.velocity.x) > 0)
+        {
+            r2d.AddForce(new Vector2(-r2d.velocity.x * decelerationStrength, 0f));
+        }
+        
+    }
+
+    void DoAirStrafe()
+    {
+        if(Input.GetKey(KeyCode.A) && Math.Abs(r2d.velocity.x) < maxSpeed)
+        {
+            r2d.AddForce(new Vector2(-airStrafeStrength, 0f));
+        }
+        else if(Input.GetKey(KeyCode.D) && Math.Abs(r2d.velocity.x) < maxSpeed)
+        {
+            r2d.AddForce(new Vector2(airStrafeStrength, 0f));
+        }
+        else if(Math.Abs(r2d.velocity.x) > 0)
+        {
+            r2d.AddForce(new Vector2(-r2d.velocity.x * airStrafeDecelerationStrength, 0f));
+        }
     }
 
     void DoJump()
@@ -155,6 +191,17 @@ public class CharacterController2D : MonoBehaviour
             kickCooldown = 5f;
             activeBlock = null;
         }
+    }
+
+    void DoWallhold()
+    {
+        r2d.gravityScale = gravityScale * wallholdGravityScalar;
+    }
+
+    void DoWalljump()
+    {
+        walljumpLock = true;
+        StartCoroutine(walljump(wallholdDirection));
     }
 
     #region LeftRays
@@ -210,6 +257,17 @@ public class CharacterController2D : MonoBehaviour
         yield return new WaitForSeconds(0.3f);
         currentState = State.Fall;
         clamberLock = false;
+    }
+
+    IEnumerator walljump(int direction)
+    {
+        r2d.AddForce(new Vector2(walljumpStrength * -direction, walljumpStrength), ForceMode2D.Impulse);
+        r2d.gravityScale = gravityScale;
+        wallholdDirection = 0;
+        jumpAmmount++;
+        yield return new WaitForSeconds(walljumpDelay);
+        walljumpLock = false;
+        currentState = State.Fall;
     }
 
     // Use this for initialization
@@ -344,28 +402,7 @@ public class CharacterController2D : MonoBehaviour
 
             case State.Fall:
 
-                DoWalk();
-
-                if (jumpInput && (jumpAmmount >= 1))
-                {
-                    currentState = State.Jump; break;
-                }
-
-                if (isGrounded)
-                {
-                    currentState = State.Walk;
-                    jumpAmmount = 2;
-                    break;
-                }
-
-                if (feetLeftRay() && !headLeftRay() && moveDirection == -1)
-                {
-                    currentState = State.Clamber; break;
-                }
-                if (feetRightRay() && !headRightRay() && moveDirection == 1)
-                {
-                    currentState = State.Clamber; break;
-                }
+                DoAirStrafe();
 
                 if(Input.GetKey(KeyCode.F) && facingRight)
                 {
@@ -376,7 +413,46 @@ public class CharacterController2D : MonoBehaviour
                     DoBlockKick(facingRight);
                 }
 
+                //to jump
+                if (jumpInput && (jumpAmmount >= 1))
+                {
+                    currentState = State.Jump; break;
+                }
+
+                //to walk
+                if (isGrounded)
+                {
+                    currentState = State.Walk;
+                    jumpAmmount = 2;
                     break;
+                }
+
+                //to clamber
+                if (feetLeftRay() && !headLeftRay() && moveDirection == -1)
+                {
+                    currentState = State.Clamber; break;
+                }
+                if (feetRightRay() && !headRightRay() && moveDirection == 1)
+                {
+                    currentState = State.Clamber; break;
+                }
+
+                //to wallhold
+                if(headLeftRay() && midLeftRay() && feetLeftRay() && Input.GetKey(KeyCode.A))
+                {
+                    wallholdDirection = -1;
+                    r2d.velocity = new Vector2(r2d.velocity.x, 0);
+                    currentState = State.Wallhold; break;
+                }
+                
+                if (headRightRay() && midRightRay() && feetRightRay() && Input.GetKey(KeyCode.D))
+                {
+                    wallholdDirection = 1;
+                    r2d.velocity = new Vector2(r2d.velocity.x, 0);
+                    currentState = State.Wallhold; break;
+                }
+
+                break;
 
             case State.Clamber:
 
@@ -385,6 +461,40 @@ public class CharacterController2D : MonoBehaviour
                     DoClamber();
                 }
 
+                break;
+
+            case State.Wallhold:
+                DoWallhold();
+
+                //to fall
+                if (!Input.GetKey(KeyCode.A) && wallholdDirection == -1)
+                {
+                    wallholdDirection = 0;
+                    r2d.gravityScale = gravityScale;
+                    currentState = State.Fall; break;
+                }
+
+                if (!Input.GetKey(KeyCode.D) && wallholdDirection == 1)
+                {
+                    wallholdDirection = 0;
+                    r2d.gravityScale = gravityScale;
+                    currentState = State.Fall; break;
+                }
+
+                //to walljump
+                if (Input.GetKey(KeyCode.W))
+                {
+                    currentState = State.Walljump; break;
+                }
+
+                break;
+
+            case State.Walljump:
+                if(walljumpLock == false)
+                {
+                    DoWalljump();
+                }
+                
                 break;
         }
 
