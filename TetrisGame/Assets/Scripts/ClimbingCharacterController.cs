@@ -257,14 +257,12 @@ public class CharacterController2D : MonoBehaviour
         kickCooldown -= Time.deltaTime;
         punchCooldown -= Time.deltaTime;
 
-        Debug.Log((int)(Time.time % 10));
-        if ((int)(Time.time % 5) >= 4)
+        if ((int)(Time.time % 3) >= 2)
         {
-            Debug.Log("Setting bool to true");
             doCamShift = true;
         }
 
-        if ((int)(Time.time % 10) == 0 && doCamShift)
+        if ((int)(Time.time % 3) == 0 && doCamShift)
         {
             doCamShift = false;
             cameraPos.y += 1;
