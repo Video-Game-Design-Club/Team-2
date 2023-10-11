@@ -282,16 +282,16 @@ MonoBehaviour:
     m_Bits: 55
   mainCollider: {fileID: 287001283}
   accelerationStrength: 30.6
-  decelerationStrength: 7.3
+  decelerationStrength: 8.5
   turnbackStrength: 6.3
   airStrafeStrength: 25.3
   airStrafeDecelerationStrength: 2.9
-  upClamberStrength: 7.68
+  upClamberStrength: 6.79
   sideClamberStrength: 2.38
   clamberDelay: 0.21
   wallholdGravityScalar: 0.15
-  walljumpStrength: 5.65
-  walljumpDelay: 0.13
+  walljumpStrength: 6.95
+  walljumpDelay: 0.24
 --- !u!70 &287001283
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

@@ -72,63 +72,6 @@ public class CharacterController2D : MonoBehaviour
 
     void DoWalk()
     {
-        /*if ((Input.GetKey(KeyCode.D)))
-        {
-            if (accelerationTimer <= 1)
-            {
-                if (accelerationTimer <= 0)
-                {
-                    accelerationTimer += turnbackStrength * Time.deltaTime;
-                }
-                else
-                    accelerationTimer += accelerationStrength * Time.deltaTime;
-            }
-        }
-
-        if ((Input.GetKey(KeyCode.A)))
-        {
-            if (accelerationTimer >= -1)
-            {
-                if (accelerationTimer >= 0)
-                {
-                    accelerationTimer -= turnbackStrength * Time.deltaTime;
-                }
-                else
-                    accelerationTimer -= accelerationStrength * Time.deltaTime;
-            }
-        }
-
-        if (!Input.GetKey(KeyCode.A) && !Input.GetKey(KeyCode.D))
-        {
-            if (accelerationTimer > 0f)
-            {
-                float accDelta = decelerationStrength * Time.deltaTime;
-                accelerationTimer -= MathF.Min(accDelta, MathF.Abs(accelerationTimer));
-            }
-            else if (accelerationTimer < 0f)
-            {
-                float accDelta = decelerationStrength * Time.deltaTime;
-                accelerationTimer += MathF.Min(accDelta, MathF.Abs(accelerationTimer));
-            }
-        }
-
-        if (headLeftRay() || midLeftRay() || feetLeftRay())
-        {
-            if (moveDirection < 0)
-            {
-                accelerationTimer = 0;
-            }
-        }
-
-        if (headRightRay() || midRightRay() || feetRightRay())
-        {
-            if (moveDirection > 0)
-            {
-                accelerationTimer = 0;
-            }
-        }
-
-        r2d.velocity = new Vector2(maxSpeed * accelerationCurve.Evaluate(accelerationTimer), r2d.velocity.y);*/
         if(Math.Abs(r2d.velocity.x) < maxSpeed && moveDirection != 0)
         {
             r2d.AddForce(new Vector2(accelerationStrength * moveDirection, 0f));
@@ -261,10 +204,10 @@ public class CharacterController2D : MonoBehaviour
 
     IEnumerator walljump(int direction)
     {
-        r2d.AddForce(new Vector2(walljumpStrength * -direction, walljumpStrength), ForceMode2D.Impulse);
+        r2d.AddForce(new Vector2(walljumpStrength * -direction, walljumpStrength * 1.5f), ForceMode2D.Impulse);
         r2d.gravityScale = gravityScale;
         wallholdDirection = 0;
-        jumpAmmount++;
+        //jumpAmmount++;
         yield return new WaitForSeconds(walljumpDelay);
         walljumpLock = false;
         currentState = State.Fall;
