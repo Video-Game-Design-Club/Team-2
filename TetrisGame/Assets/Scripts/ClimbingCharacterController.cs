@@ -54,6 +54,8 @@ public class CharacterController2D : MonoBehaviour
     public float punchCooldown = 0f;
     public float freezeTimeCooldown = 0f;
 
+    bool doCamShift = false;
+
     public enum State
     {
         Walk,
@@ -255,6 +257,19 @@ public class CharacterController2D : MonoBehaviour
         kickCooldown -= Time.deltaTime;
         punchCooldown -= Time.deltaTime;
 
+        Debug.Log((int)(Time.time % 10));
+        if ((int)(Time.time % 5) >= 4)
+        {
+            Debug.Log("Setting bool to true");
+            doCamShift = true;
+        }
+
+        if ((int)(Time.time % 10) == 0 && doCamShift)
+        {
+            doCamShift = false;
+            cameraPos.y += 1;
+        }
+
         //Check if active block ref is stale, if so, null it out. Otherwise check for the most recent active block.
         if ((activeBlock != null) && (activeBlock.mode != Group.GroupMode.Active))
             activeBlock = null;
@@ -303,7 +318,7 @@ public class CharacterController2D : MonoBehaviour
         // Camera follow
         if (mainCamera)
         {
-            mainCamera.transform.position = new Vector3(cameraPos.x, t.position.y, cameraPos.z);
+            mainCamera.transform.position = new Vector3(10, cameraPos.y, -10);
         }
     }
 

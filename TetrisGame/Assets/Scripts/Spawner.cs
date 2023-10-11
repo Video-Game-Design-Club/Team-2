@@ -7,7 +7,7 @@ public class Spawner : MonoBehaviour
     public GameObject[] groups;
     public Sprite[] sprites;
     public GameObject player;
-    float fallTime = 0.7f;
+    float fallTime = 0.5f;
     int lastTime = 0;
     int blockType = 0;
 
@@ -22,6 +22,7 @@ public class Spawner : MonoBehaviour
         nextBlockPanel = GameObject.Find("NBP").transform.GetChild(1);
 
         // Spawn initial Group
+        spawnNext();
         spawnNext();
     }
 
@@ -41,7 +42,7 @@ public class Spawner : MonoBehaviour
         if ((timeCheck > 1 && ((timeCheck % 60) == 0)) || ((timeCheck - lastTime) > 60) ) //Check to see if 60 seconds passed, if so then make blocks fall faster. 
         {
             timeCheck++;
-            fallTime -= .1f;
+            fallTime -= .05f;
             lastTime += 60;
         }
 
