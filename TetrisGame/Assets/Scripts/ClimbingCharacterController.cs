@@ -257,12 +257,12 @@ public class CharacterController2D : MonoBehaviour
         kickCooldown -= Time.deltaTime;
         punchCooldown -= Time.deltaTime;
 
-        if ((int)(Time.time % 3) >= 2)
+        if ((int)(Time.time % 5) >= 3)
         {
             doCamShift = true;
         }
 
-        if ((int)(Time.time % 3) == 0 && doCamShift)
+        if ((int)(Time.time % 5) == 0 && doCamShift)
         {
             doCamShift = false;
             cameraPos.y += 1;
@@ -316,6 +316,8 @@ public class CharacterController2D : MonoBehaviour
         // Camera follow
         if (mainCamera)
         {
+            if (transform.position.y >= cameraPos.y)
+                cameraPos.y = transform.position.y;
             mainCamera.transform.position = new Vector3(10, cameraPos.y, -10);
         }
     }
