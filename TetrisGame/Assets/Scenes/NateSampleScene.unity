@@ -926,12 +926,17 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 55
   mainCollider: {fileID: 287001283}
-  accelerationStrength: 2
-  decelerationStrength: 2.99
+  accelerationStrength: 30.6
+  decelerationStrength: 8.5
   turnbackStrength: 6.3
-  upClamberStrength: 7.68
+  airStrafeStrength: 25.3
+  airStrafeDecelerationStrength: 2.9
+  upClamberStrength: 6.79
   sideClamberStrength: 2.38
   clamberDelay: 0.21
+  wallholdGravityScalar: 0.15
+  walljumpStrength: 6.95
+  walljumpDelay: 0.24
   kickCooldown: 0
   punchCooldown: 0
   freezeTimeCooldown: 0
