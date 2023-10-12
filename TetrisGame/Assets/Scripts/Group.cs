@@ -17,6 +17,7 @@ public class Group : MonoBehaviour
     float lastFall = 0;
     public GroupMode mode = GroupMode.Queued;
     public float blockFallTime;
+    bool firstFrame = false;
 
     // Start is called before the first frame update
     void Start()
@@ -61,6 +62,13 @@ public class Group : MonoBehaviour
             {
                 // It's valid. Update grid.
                 updateGrid();
+                if (transform.position.y <= (Camera.main.transform.position.y - 10f))
+                {
+                    gameObject.GetComponent<Group>().mode = GroupMode.Set;
+                    FindObjectOfType<Spawner>().spawnNext();
+                    FindObjectOfType<Score>().score += 4;
+                    enabled = false;
+                }
             }
             else
             {
@@ -68,18 +76,21 @@ public class Group : MonoBehaviour
                 transform.position += new Vector3(0, 1, 0);
 
                 // Clear filled horizontal lines
-                Playfield.deleteFullRows();
+                //Playfield.deleteFullRows();
 
                 // Spawn next Group
                 gameObject.GetComponent<Group>().mode = GroupMode.Set;
                 FindObjectOfType<Spawner>().spawnNext();
-                FindObjectOfType<Score>().score += 4;
+                if (firstFrame)
+                    FindObjectOfType<Score>().score += 4;
 
                 // Disable script
                 enabled = false;
+                if (!firstFrame)
+                    DestroyImmediate(gameObject);
             }
-
             lastFall = Time.time;
+            firstFrame = true;
         }
     }
 

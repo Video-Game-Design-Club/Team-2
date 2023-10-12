@@ -7,9 +7,10 @@ public class Spawner : MonoBehaviour
     public GameObject[] groups;
     public Sprite[] sprites;
     public GameObject player;
-    float fallTime = 0.7f;
+    float fallTime = 0.2f;
     int lastTime = 0;
     int blockType = 0;
+    bool spawnTimer = false;
 
     private GameObject _nextBlock;
 
@@ -23,6 +24,7 @@ public class Spawner : MonoBehaviour
 
         // Spawn initial Group
         spawnNext();
+        spawnNext();
     }
 
     // Update is called once per frame
@@ -33,16 +35,23 @@ public class Spawner : MonoBehaviour
             //Set the block's position to the UI panel's position.
             _nextBlock.transform.position = nextBlockPanel.transform.position;
         }
+        if (Time.time >= 10 && !spawnTimer)
+        {
+            spawnTimer = true;
+            spawnNext();
+        }
     }
 
     public void spawnNext()
     {
         int timeCheck = (int)Time.time; //Throw time into an int so we can drop the numbers after the decimal.
-        if ((timeCheck > 1 && ((timeCheck % 60) == 0)) || ((timeCheck - lastTime) > 60) ) //Check to see if 60 seconds passed, if so then make blocks fall faster. 
+        if ((timeCheck > 1 && ((timeCheck % 10) == 0)) || ((timeCheck - lastTime) > 10) ) //Check to see if 60 seconds passed, if so then make blocks fall faster. 
         {
             timeCheck++;
-            fallTime -= .1f;
-            lastTime += 60;
+            fallTime -= .01f;
+            lastTime += 10;
+            if (fallTime <= 0.02f)
+                fallTime = 0.02f;
         }
 
         if (_nextBlock == null)
@@ -93,10 +102,10 @@ public class Spawner : MonoBehaviour
             default:
                 break;
         }
-        int y = (int)(player.transform.position.y + 14);
-        Vector3 pos = transform.position;
+        Vector3 pos = Camera.main.transform.position;
         pos.x = x;
-        pos.y = y;
+        pos.y = (int)(Camera.main.transform.position.y + 14);
+        pos.z = 0;
         _nextBlock.transform.SetPositionAndRotation(pos, transform.rotation);
         _nextBlock.GetComponent<Group>().mode = Group.GroupMode.Active;
         _nextBlock.GetComponent<Group>().blockFallTime = fallTime; //Needed since we want the block fall time to vary. 
