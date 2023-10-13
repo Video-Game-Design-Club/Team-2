@@ -160,11 +160,23 @@ public class CharacterController2D : MonoBehaviour
             punchCooldown = 5f;
             activeBlock = null;
         }
+        else if (activeBlock && punchCooldown <= 0f && midRightRayResult().collider != null && midRightRayResult().transform.parent == activeBlock.transform)
+        {
+            activeBlock.Rotate();
+            punchCooldown = 5f;
+            activeBlock = null;
+        }
+        else if (activeBlock && punchCooldown <= 0f && midLeftRayResult().collider != null && midLeftRayResult().transform.parent == activeBlock.transform)
+        {
+            activeBlock.Rotate();
+            punchCooldown = 5f;
+            activeBlock = null;
+        }
     }
 
     RaycastHit2D HeadUpRayResult()
     {
-        return Physics2D.Raycast(transform.position, Vector2.up, .9f, notPlayer);
+        return Physics2D.Raycast(transform.position, Vector2.up, 1.5f, notPlayer);
     }
 
     #region LeftRays
@@ -180,7 +192,7 @@ public class CharacterController2D : MonoBehaviour
     
     RaycastHit2D midLeftRayResult()
     {
-        return Physics2D.Raycast(transform.position, Vector2.left, .4f, notPlayer);
+        return Physics2D.Raycast(transform.position, Vector2.left, 1f, notPlayer);
     }
 
     bool feetLeftRay()
@@ -202,7 +214,7 @@ public class CharacterController2D : MonoBehaviour
 
     RaycastHit2D midRightRayResult()
     {
-        return Physics2D.Raycast(transform.position, Vector2.right, .4f, notPlayer);
+        return Physics2D.Raycast(transform.position, Vector2.right, 1f, notPlayer);
     }
 
     bool feetRightRay()
@@ -352,16 +364,19 @@ public class CharacterController2D : MonoBehaviour
 
                 DoWalk();
 
+                //to jump
                 if (jumpInput && (jumpAmmount >= 1))
                 {
                     currentState = State.Jump; break;
                 }
 
+                //to fall
                 if (!isGrounded)
                 {
                     currentState = State.Fall; break;
                 }
 
+                // to clamber
                 if (feetLeftRay() && !headLeftRay() && moveDirection == -1)
                 {
                     currentState = State.Clamber; break;
@@ -384,11 +399,12 @@ public class CharacterController2D : MonoBehaviour
 
                 DoAirStrafe();
 
-                if(Input.GetKey(KeyCode.F) && facingRight)
+                //to block kick
+                if(Input.GetKey(KeyCode.LeftArrow) && facingRight)
                 {
                     DoBlockKick(facingRight);
                 }
-                else if(Input.GetKey(KeyCode.F) && !facingRight)
+                else if(Input.GetKey(KeyCode.LeftArrow) && !facingRight)
                 {
                     DoBlockKick(facingRight);
                 }
@@ -432,7 +448,8 @@ public class CharacterController2D : MonoBehaviour
                     currentState = State.Wallhold; break;
                 }
 
-                if (Input.GetKey(KeyCode.E))
+                //to punch
+                if (Input.GetKey(KeyCode.RightArrow))
                 {
                     DoBlockPunch();
                 }
