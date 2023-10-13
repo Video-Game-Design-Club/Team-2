@@ -323,7 +323,7 @@ public class CharacterController2D : MonoBehaviour
                 cameraPos.y = transform.position.y;
             mainCamera.transform.position = new Vector3(10, cameraPos.y, -10);
         }
-        animator.SetInteger("IsWalkingBruh",(int)r2d.velocity.x);
+        animator.SetInteger("IsWalking",(int)r2d.velocity.x);
     }
 
     void FixedUpdate()
