@@ -45,11 +45,11 @@ public class Spawner : MonoBehaviour
     public void spawnNext()
     {
         int timeCheck = (int)Time.time; //Throw time into an int so we can drop the numbers after the decimal.
-        if ((timeCheck > 1 && ((timeCheck % 10) == 0)) || ((timeCheck - lastTime) > 10) ) //Check to see if 60 seconds passed, if so then make blocks fall faster. 
+        if ((timeCheck > 1 && ((timeCheck % 25) == 0)) || ((timeCheck - lastTime) > 25) ) //Check to see if 60 seconds passed, if so then make blocks fall faster. 
         {
             timeCheck++;
             fallTime -= .01f;
-            lastTime += 10;
+            lastTime += 25;
             if (fallTime <= 0.02f)
                 fallTime = 0.02f;
         }
