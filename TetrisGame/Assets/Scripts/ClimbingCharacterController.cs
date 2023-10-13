@@ -49,6 +49,7 @@ public class CharacterController2D : MonoBehaviour
     int jumpAmmount = 1;
     Vector3 cameraPos;
     Rigidbody2D r2d;
+    Animator animator;
 
     Transform t;
     float accelerationTimer = 0f;
@@ -242,6 +243,7 @@ public class CharacterController2D : MonoBehaviour
         r2d.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         r2d.gravityScale = gravityScale;
         facingRight = t.localScale.x > 0;
+        animator = GetComponentInChildren<Animator>();
 
         if (mainCamera)
         {
@@ -283,6 +285,7 @@ public class CharacterController2D : MonoBehaviour
         if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)))
         {
             moveDirection = Input.GetKey(KeyCode.A) ? -1 : 1;
+
         }
         else
         {
@@ -320,6 +323,7 @@ public class CharacterController2D : MonoBehaviour
                 cameraPos.y = transform.position.y;
             mainCamera.transform.position = new Vector3(10, cameraPos.y, -10);
         }
+        animator.SetInteger("IsWalkingBruh",(int)r2d.velocity.x);
     }
 
     void FixedUpdate()
