@@ -109,11 +109,14 @@ public class CharacterController2D : MonoBehaviour
     {
         jumpAmmount--;
         r2d.velocity = new Vector2(r2d.velocity.x, jumpHeight);
+        animator.SetTrigger("Jump");
     }
 
     void DoClamber()
     {
         clamberLock = true;
+
+        animator.SetTrigger("Clamber");
 
         if (feetLeftRay())
         {
@@ -323,7 +326,10 @@ public class CharacterController2D : MonoBehaviour
                 cameraPos.y = transform.position.y;
             mainCamera.transform.position = new Vector3(10, cameraPos.y, -10);
         }
-        animator.SetInteger("IsWalking",(int)r2d.velocity.x);
+
+        animator.SetBool("IsFalling", currentState == State.Fall);
+        animator.SetBool("IsOnWall", currentState == State.Wallhold);
+        animator.SetBool("IsRunning", r2d.velocity.x != 0 && isGrounded);
     }
 
     void FixedUpdate()
