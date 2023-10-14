@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Spawner : MonoBehaviour
@@ -8,7 +9,6 @@ public class Spawner : MonoBehaviour
     public Sprite[] sprites;
     public GameObject player;
     float fallTime = 0.2f;
-    int lastTime = 0;
     int blockType = 0;
     bool spawnTimer = false;
 
@@ -19,12 +19,14 @@ public class Spawner : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Group.height = 0;
         //Find the object in the scene that has the name NBP.
         nextBlockPanel = GameObject.Find("NBP").transform.GetChild(1);
 
         // Spawn initial Group
         spawnNext();
         spawnNext();
+        StartCoroutine(savemepls());
     }
 
     // Update is called once per frame
@@ -42,18 +44,22 @@ public class Spawner : MonoBehaviour
         }
     }
 
+    IEnumerator savemepls()
+    {
+        for(; ; )
+        {
+            yield return new WaitForSeconds(25f);
+            Debug.Log("speedup");
+            fallTime -= .01f;
+            if (fallTime <= 0.08f)
+                fallTime = 0.08f;
+            if (Camera.main.GetComponent<AudioSource>().pitch <= 1.6f)
+                Camera.main.GetComponent<AudioSource>().pitch += 0.166f;
+        }
+    }
+
     public void spawnNext()
     {
-        int timeCheck = (int)Time.time; //Throw time into an int so we can drop the numbers after the decimal.
-        if ((timeCheck > 1 && ((timeCheck % 25) == 0)) || ((timeCheck - lastTime) > 25) ) //Check to see if 60 seconds passed, if so then make blocks fall faster. 
-        {
-            timeCheck++;
-            fallTime -= .01f;
-            lastTime += 25;
-            if (fallTime <= 0.02f)
-                fallTime = 0.02f;
-        }
-
         if (_nextBlock == null)
         {
             GenerateNext();
@@ -104,7 +110,7 @@ public class Spawner : MonoBehaviour
         }
         Vector3 pos = Camera.main.transform.position;
         pos.x = x;
-        pos.y = (int)(Camera.main.transform.position.y + 14);
+        pos.y = (int)(Group.height + 14);
         pos.z = 0;
         _nextBlock.transform.SetPositionAndRotation(pos, transform.rotation);
         _nextBlock.GetComponent<Group>().mode = Group.GroupMode.Active;

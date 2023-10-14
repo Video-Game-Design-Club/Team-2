@@ -19,6 +19,8 @@ public class Group : MonoBehaviour
     public float blockFallTime;
     bool firstFrame = false;
 
+    public static int height = 0;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -38,17 +40,6 @@ public class Group : MonoBehaviour
         {
             return;
         }
-        /*if(Input.GetMouseButtonDown(0))
-        {
-            Debug.Log("Fire");
-            if(Time.timeScale <= 99)
-            Time.timeScale += 1f;
-        }
-        if (Input.GetMouseButtonDown(1))
-        {
-            Debug.Log("Alt-Fire");
-            Time.timeScale = 1;
-        }*/
 
         // Move Downwards and Fall
         if (Time.timeScale != 0 && Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow) ||
@@ -57,10 +48,6 @@ public class Group : MonoBehaviour
             // Modify position
             transform.position += new Vector3(0, -1, 0);
 
-            /*if (Playfield.grid[(int)(gameObject.transform.position.x), (int)(gameObject.transform.position.y)] == null)
-            {
-                Debug.Log("Space is null");
-            }*/
             // See if valid
             if (isValidGridPos())
             {
@@ -78,8 +65,10 @@ public class Group : MonoBehaviour
                 // It's not valid. revert.
                 transform.position += new Vector3(0, 1, 0);
 
-                // Clear filled horizontal lines
-                //Playfield.deleteFullRows();
+                int blockHeight = (int)transform.position.y;
+
+                if (blockHeight > height)
+                    height = blockHeight;
 
                 // Spawn next Group
                 gameObject.GetComponent<Group>().mode = GroupMode.Set;

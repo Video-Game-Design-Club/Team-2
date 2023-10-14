@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class ButtonHandler : MonoBehaviour
 {
@@ -35,6 +36,11 @@ public class ButtonHandler : MonoBehaviour
     float gameOverTime = 1.5f;
     float goTimer = 0f;
 
+    [SerializeField]
+    AudioClip goClip;
+
+    bool audioOnce = true;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -47,13 +53,15 @@ public class ButtonHandler : MonoBehaviour
         volumeSlider.gameObject.SetActive(false);
         goPopup.gameObject.SetActive(false);
         pausePopup.gameObject.SetActive(false);
+        float vol = PlayerPrefs.GetFloat("Vol", 0.5f);
+        volumeSlider.GetComponent<Slider>().onValueChanged.AddListener(volumeChange);
+        AudioListener.volume = vol;
+        volumeSlider.GetComponent<Slider>().value = vol;
     }
 
     // Update is called once per frame
     void Update()
     {
-        AudioListener.volume = volumeSlider.GetComponent<Slider>().value;
-
         if (player.position.y < Camera.main.transform.position.y - 10)
         {
             goTimer += Time.deltaTime;
@@ -68,7 +76,26 @@ public class ButtonHandler : MonoBehaviour
             //Collossal L
             Time.timeScale = 0;
             goPopup.gameObject.SetActive(true);
+            if (audioOnce)
+            {
+                audioOnce = false;
+                Camera.main.GetComponent<AudioSource>().Stop();
+                Camera.main.GetComponent<AudioSource>().pitch = 1;
+                Camera.main.GetComponent<AudioSource>().PlayOneShot(goClip);
+            }
         }
+    }
+
+    private void OnDestroy()
+    {
+        if(volumeSlider != null)
+            volumeSlider.GetComponent<Slider>().onValueChanged.RemoveListener(volumeChange);
+    }
+
+    void volumeChange(float vol)
+    {
+        AudioListener.volume = volumeSlider.GetComponent<Slider>().value;
+        PlayerPrefs.SetFloat("Vol", AudioListener.volume);
     }
 
     public void PauseGame()
