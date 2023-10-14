@@ -473,7 +473,7 @@ public class CharacterController2D : MonoBehaviour
                 }
 
                 //to walljump
-                if (Input.GetKey(KeyCode.W))
+                if ((Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.Space)))
                 {
                     currentState = State.Walljump; break;
                 }
