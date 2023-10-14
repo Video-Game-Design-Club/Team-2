@@ -30,6 +30,7 @@ public class Score : MonoBehaviour
 
     private void OnDestroy()
     {
+        if(PlayerPrefs.GetInt("hiScore", 0) < (lastHeight * 10))
         PlayerPrefs.SetInt("hiScore", (lastHeight * 10));
     }
 }
