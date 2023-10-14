@@ -35,7 +35,7 @@ public class Spawner : MonoBehaviour
             //Set the block's position to the UI panel's position.
             _nextBlock.transform.position = nextBlockPanel.transform.position;
         }
-        if (Time.time >= 10 && !spawnTimer)
+        if (Time.timeSinceLevelLoad >= 10 && !spawnTimer)
         {
             spawnTimer = true;
             spawnNext();
