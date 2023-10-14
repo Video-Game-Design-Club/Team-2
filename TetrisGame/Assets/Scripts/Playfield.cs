@@ -6,7 +6,7 @@ public class Playfield : MonoBehaviour
 {
     // The Grid itself
     public static int w = 20;
-    public static int h = 200;
+    public static int h = 2000;
     public static Transform[,] grid = new Transform[w, h];
 
     // Start is called before the first frame update

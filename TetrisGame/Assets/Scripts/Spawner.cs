@@ -49,7 +49,8 @@ public class Spawner : MonoBehaviour
         for(; ; )
         {
             yield return new WaitForSeconds(25f);
-            Debug.Log("speedup");
+            if (Time.timeScale <=0 )
+                continue;
             fallTime -= .01f;
             if (fallTime <= 0.08f)
                 fallTime = 0.08f;
