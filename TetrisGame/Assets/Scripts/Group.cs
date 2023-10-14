@@ -107,7 +107,8 @@ public class Group : MonoBehaviour
 
             // Block in grid cell (and not part of same group)?
             if (Playfield.grid[(int)v.x, (int)v.y] != null &&
-                Playfield.grid[(int)v.x, (int)v.y].parent != transform)
+                Playfield.grid[(int)v.x, (int)v.y].parent != transform && 
+                Playfield.grid[(int)v.x, (int)v.y].parent.GetComponent<Group>().mode != GroupMode.Active)
                 return false;
         }
         return true;
