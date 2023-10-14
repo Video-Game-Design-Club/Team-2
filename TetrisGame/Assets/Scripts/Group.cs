@@ -57,6 +57,10 @@ public class Group : MonoBehaviour
             // Modify position
             transform.position += new Vector3(0, -1, 0);
 
+            /*if (Playfield.grid[(int)(gameObject.transform.position.x), (int)(gameObject.transform.position.y)] == null)
+            {
+                Debug.Log("Space is null");
+            }*/
             // See if valid
             if (isValidGridPos())
             {
@@ -66,7 +70,6 @@ public class Group : MonoBehaviour
                 {
                     gameObject.GetComponent<Group>().mode = GroupMode.Set;
                     FindObjectOfType<Spawner>().spawnNext();
-                    FindObjectOfType<Score>().score += 4;
                     enabled = false;
                 }
             }
@@ -81,8 +84,6 @@ public class Group : MonoBehaviour
                 // Spawn next Group
                 gameObject.GetComponent<Group>().mode = GroupMode.Set;
                 FindObjectOfType<Spawner>().spawnNext();
-                if (firstFrame)
-                    FindObjectOfType<Score>().score += 4;
 
                 // Disable script
                 enabled = false;
@@ -106,7 +107,8 @@ public class Group : MonoBehaviour
 
             // Block in grid cell (and not part of same group)?
             if (Playfield.grid[(int)v.x, (int)v.y] != null &&
-                Playfield.grid[(int)v.x, (int)v.y].parent != transform)
+                Playfield.grid[(int)v.x, (int)v.y].parent != transform && 
+                Playfield.grid[(int)v.x, (int)v.y].parent.GetComponent<Group>().mode != GroupMode.Active)
                 return false;
         }
         return true;

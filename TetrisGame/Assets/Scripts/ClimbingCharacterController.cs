@@ -52,7 +52,7 @@ public class CharacterController2D : MonoBehaviour
     Animator animator;
 
     Transform t;
-    float accelerationTimer = 0f;
+    //float accelerationTimer = 0f;
     bool clamberLock = false;
     bool jumpInput = false;
 
