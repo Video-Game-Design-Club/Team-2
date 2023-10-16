@@ -2068,7 +2068,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 8.400024, y: 9.029999}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -16.8, y: -18.07}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &180775568
@@ -2091,7 +2091,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '?'
+  m_text: HELP
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 78aa552808aff404db06663c8d4e5172, type: 2}
   m_sharedMaterial: {fileID: 4340465218257681651, guid: 78aa552808aff404db06663c8d4e5172, type: 2}
@@ -2118,8 +2118,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 300
-  m_fontSizeBase: 300
+  m_fontSize: 90
+  m_fontSizeBase: 90
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -17095,7 +17095,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -51}
-  m_SizeDelta: {x: 300, y: 260}
+  m_SizeDelta: {x: 279.86, y: 260}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1421918184
 MonoBehaviour:
@@ -17130,7 +17130,7 @@ MonoBehaviour:
     ON LEFT OR RIGHT OF BLOCK TO KICK
 
 
-    Q TO USE POWERUP'
+    S TO DROP FALLING BLOCKS'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 78aa552808aff404db06663c8d4e5172, type: 2}
   m_sharedMaterial: {fileID: 4340465218257681651, guid: 78aa552808aff404db06663c8d4e5172, type: 2}
@@ -19591,12 +19591,12 @@ RectTransform:
   - {fileID: 1916484985}
   - {fileID: 6786414}
   - {fileID: 1180806072}
-  - {fileID: 2004443578}
   - {fileID: 393700951}
   - {fileID: 1519211924}
   - {fileID: 351032546}
   - {fileID: 1976802199}
   - {fileID: 1288391379}
+  - {fileID: 2004443578}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
