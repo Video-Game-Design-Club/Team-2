@@ -109,6 +109,9 @@ public class ButtonHandler : MonoBehaviour
         }
         else
         {
+            if (helpPopup.gameObject.activeSelf){
+                return;
+            }
             //remove blur
             Time.timeScale = 1;
             togglePause = false;
@@ -134,14 +137,14 @@ public class ButtonHandler : MonoBehaviour
     {
         if (!toggleHelp)
         {
-            PauseGame();
             helpPopup.gameObject.SetActive(true);
+            PauseGame();
             toggleHelp = true;
         }
         else
         {
-            PauseGame();
             helpPopup.gameObject.SetActive(false);
+            PauseGame();
             toggleHelp = false;
         }
     }
