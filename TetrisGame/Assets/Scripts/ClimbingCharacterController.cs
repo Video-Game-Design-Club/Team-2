@@ -19,6 +19,10 @@ public class CharacterController2D : MonoBehaviour
     public Camera mainCamera;
     public LayerMask notPlayer;
     public CapsuleCollider2D mainCollider;
+    public AudioSource sfxPlayer;
+    public AudioClip jumpClip;
+    public AudioClip walljumpClip;
+    public AudioClip baseJump;
 
     [Header("Acceleration Settings")]
     public float accelerationStrength = 1.0f;
@@ -103,6 +107,15 @@ public class CharacterController2D : MonoBehaviour
 
     void DoJump()
     {
+        if(jumpAmmount > 1)
+        {
+            sfxPlayer.PlayOneShot(baseJump, 0.7f);
+        }
+        else
+        {
+            sfxPlayer.PlayOneShot(jumpClip);
+        }
+        
         jumpAmmount--;
         r2d.velocity = new Vector2(r2d.velocity.x, jumpHeight);
         animator.SetTrigger("Jump");
@@ -148,6 +161,7 @@ public class CharacterController2D : MonoBehaviour
 
     void DoWalljump()
     {
+        sfxPlayer.PlayOneShot(walljumpClip, 0.7f);
         walljumpLock = true;
         StartCoroutine(walljump(wallholdDirection));
     }
